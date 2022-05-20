@@ -215,21 +215,20 @@ parse_params "$@" # Parsea los parametros introducidos
 
 file="log_abast.txt"
 if [ -f "$file" ] ; then
-    rm "$file"
+    $(rm "$file")
 fi
-touch log_abast.txt
+$(touch log_abast.txt)
 
-nombres_interfaces_wifi=""
 # phys_dispositivos_wifi=()
-interfaces_wifi="$(/usr/sbin/iw dev  | grep -w 'Interface' | awk '{print $2}' )"
+interfaces_wifi="$(cat output_alfredot.txt | grep -w 'Interface' | awk '{print $2}' )"
 readarray -t nombres_interfaces_wifi <<< "$interfaces_wifi"
- for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
+for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     # phys_dispositivos_wifi+=("$(/usr/sbin/iw dev | grep 'phy' | sed -n "$contador"p | sed 's/\#//')")
-    print_punts_access_detectats "${nombres_interfaces_wifi[index]}" >> $fitxerOutputTmp
-    ((contador++))
+    printf "Sacando datos para: "${nombres_interfaces_wifi[index]}"\n"
+    $(print_punts_access_detectats "${nombres_interfaces_wifi[index]}" >> $fitxerOutputTmp)
 done
-echo $'\n Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.' >> $fitxerOutputTmp
-print_header_start >> $file
-cat $fitxerOutputTmp >> $file
+$(echo $'\n Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.' >> $fitxerOutputTmp)
+$(print_header_start >> $file)
+$(cat $fitxerOutputTmp >> $file)
 
 
