@@ -1,0 +1,83 @@
+
+ ----------------------------------------------------------------------------------------------------------
+ Anàlisi dels usuaris, ports i taules NF actius a l'equip realitzada per l'usuari root de l'equip debian11.
+ Sistema operatiu Debian GNU/Linux 11 (bullseye).
+ Versió del script 0.113 compilada el 07/02/2022.
+ Anàlisi iniciada en data 2022-03-11 a les 11:27:21 i finalitzada en data 2022-03-11 a les 11:27:21.
+ ----------------------------------------------------------------------------------------------------------
+
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Usuaris actius detectats al sistema
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Usuari actual:                   root(0) [pts/0]
+  Usuaris operatius:               1  - entel(1000)
+  Usuaris amb accés root:          1  - root(0)
+  Usuaris amb processos actius:    2  - root[91], messagebus[1]
+  Usuaris del sistema:             27 - _apt(100), backup(34), bin(2), daemon(1), entel(1000), games(5), gnats(41), irc(39), list(38), lp(7), mail(8), man(6), messagebus(104), news(9), nobody(65534), proxy(13), root(0), sshd(105), sync(4), sys(3), systemd-coredump(999), systemd-network(102), systemd-resolve(103), systemd-timesync(101), uucp(10), vboxadd(998), www-data(33)
+  
+  Usuaris connectats al sistema:   1  - root[1]
+          Usuari   Terminal     Establiment      Adreça
+          root     pts/0        2022-03-11 11:25 (10.1.1.11)
+  
+  Usuaris amb connecxions actives: 1  - root[1]
+          Usuari         (@IP:Port     <->         @IP:Port         Procés:Usuari)
+          root    (10.1.1.181:22/tcp   <->   10.1.1.11:2555/tcp   531/sshd:root@pts/)
+  
+  Usuaris amb ús de CPU>20%:       1  - root[1]
+          Usuari   CPU%     pid/procés
+            root  26.7%     909/top
+			
+  Usuaris amb ús de RAM>20%:       0
+          Usuari   CPU%     pid/procés
+		       -     -%       -/-  
+
+  SSH Usuari root permès:          prohibit-password
+  SSH Usuaris permesos:            tots
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  
+ ------------------------------------------------------------------------------------------------------------
+ Ports actius detectats al sistema
+ ------------------------------------------------------------------------------------------------------------
+ Ports TCP en mode LISTEN
+	 State    Recv-Q   Send-Q      Local Address:Port       Peer Address:Port   Process
+	 LISTEN   0        128               0.0.0.0:ssh             0.0.0.0:*      users:(("sshd",pid=370,fd=3))
+	 LISTEN   0        128                  [::]:ssh                [::]:*      users:(("sshd",pid=370,fd=4))
+
+ Ports UDP en mode LISTEN
+	 State    Recv-Q   Send-Q      Local Address:Port       Peer Address:Port   Process
+	 UNCONN   0        0                 0.0.0.0:bootpc          0.0.0.0:*
+
+ Ports TCP amb connecxions establertes
+	 State    Recv-Q   Send-Q      Local Address:Port       Peer Address:Port   Process
+	 ESTAB    0        64             10.1.1.181:ssh           10.1.1.11:7096   users:(("sshd",pid=1468,fd=4))
+
+ Ports UDP amb vonnecxions establertes
+	 State    Recv-Q   Send-Q      Local Address:Port       Peer Address:Port   Process
+	 -		  -		   -		  			   -:-					   -:-		-
+------------------------------------------------------------------------------------------------------------
+
+
+ -----------------------------------------------------------------------
+ Informació NFTables
+ -----------------------------------------------------------------------
+ table ip firewall {
+		chain incoming {
+				type filter hook input priority filter; policy drop;
+				ct state established,related accept
+				iifname "lo" accept
+				icmp type echo-request accept
+				tcp dport { 22, 80 } accept
+		}
+ }
+ table ip6 firewall {
+		chain incoming {
+				type filter hook input priority filter; policy drop;
+				ct state established,related accept
+				ct state invalid drop
+				iifname "lo" accept
+				icmpv6 type { echo-request, nd-neighbor-solicit } accept
+				tcp dport { 22, 80 } accept
+		}
+ }
+ -----------------------------------------------------------------------

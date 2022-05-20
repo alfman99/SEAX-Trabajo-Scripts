@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Bash script template https://betterdev.blog/minimal-safe-bash-script-template/
-
 version_script="0.0.2"
 fecha_version="20/05/2022"
 nombre_fichero_output="log_abast.txt"
