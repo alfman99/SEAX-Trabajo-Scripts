@@ -175,6 +175,27 @@ print_usuarios_activos() {
 
 }
 
+print_nftables() {
+
+  value_info="$(nft list ruleset)"
+  # value_info=""
+  # while read line
+  # do
+  #   value_info+="$(printf " \n%s" "$line")"
+  # done < <(echo "$nft_table_value")
+
+  maxima_anchura="$(echo "$value_info" | wc -L)"
+
+  header="$(printf "\n%s" " Informació NFTables")"
+
+  imprimir_n_lineas "$maxima_anchura"
+  echo "$header"
+  imprimir_n_lineas "$maxima_anchura"
+  echo "$value_info"
+  imprimir_n_lineas "$maxima_anchura"
+
+}
+
 
 # Empieza "main"
 comprobar_is_es_root
@@ -185,10 +206,11 @@ comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquet
 
 
 
-{
+#{
   print_header_start
   echo -e "\n"
   print_usuarios_activos
   echo -e "\n"
-} > "$nombre_fichero_output"
+  print_nftables
+#} > "$nombre_fichero_output"
 
