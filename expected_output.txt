@@ -1,0 +1,57 @@
+ 
+ ----------------------------------------------------------------------------------------------------
+ Identificació de dispositius i xarxes WIFI per l'usuari root de l'equip raspberrypi.
+ Sistema operatiu Debian GNU/Linux 11 (bullseye).
+ Versió del script 0.113 compilada el 07/02/2022.
+ Anàlisi iniciada en data 2022-02-25 a les 12:03:48  i finalitzada en data 2022-02-25 a les 12:04:22.
+ ----------------------------------------------------------------------------------------------------
+ 
+
+ ----------------------------------------------------------------------------------------------
+ Punts d'Accés detecatats (wlan1 durant 30s).
+ ----------------------------------------------------------------------------------------------
+             BSSID Canal Senyal     Clau    Xifrat Auten.     Vmax ESSID                       
+ ----------------- ----- ------ -------- --------- ------ -------- ----------------------------
+ 5E:EA:1D:B5:63:8C     7 -43dbm     WPA2      CCMP    PSK   54Mbps DIRECT-8c-HP/M281/LaserJet  
+ 30:23:03:1A:24:FC     2 -69dbm     WPA2      CCMP    PSK  360Mbps mar                         
+ 64:66:24:2C:29:05    36 -92dbm      WPA                    ~ Mbps                             
+ 30:23:03:1A:24:FD    36 -89dbm     WPA2      CCMP    PSK  780Mbps mar                         
+ 30:23:03:1A:27:D7    48 -85dbm     WPA2      CCMP    PSK  780Mbps mar                         
+ 30:23:03:1A:24:FE   100 -84dbm     WPA2      CCMP    PSK  866Mbps mar                         
+ 38:D5:47:E4:83:6C    36 -81dbm     WPA2      CCMP    PSK 1560Mbps BDPNet_5G                   
+ 6A:F4:51:D6:75:5F   112 -78dbm     WPA2      CCMP    PSK 1733Mbps MiFibra-755B                
+ EC:F4:51:D6:75:5E   112 -77dbm     WPA2      CCMP    PSK 1733Mbps                             
+ AC:84:C6:1A:D4:8F     1 -74dbm     WPA2 CCMP/TKIP    PSK   54Mbps corredor                    
+ D4:60:E3:00:10:B1    10 -74dbm     WPA2      CCMP    PSK   54Mbps vodafone10B0                
+ EC:F4:51:A2:4C:50    11 -74dbm     WPA2      CCMP    PSK   54Mbps MiFibra-4C4E                
+ 3C:84:6A:07:4B:6F    11 -73dbm     WPA2 CCMP/TKIP    PSK   54Mbps cdebru_ext                  
+ 30:23:03:1A:27:D8   100 -72dbm     WPA2      CCMP    PSK  866Mbps mar                         
+ 38:D5:47:E4:83:68     9 -68dbm     WPA2      CCMP    PSK   54Mbps BDPNet                      
+ 36:23:03:1A:24:FC     2 -68dbm     WPA2      CCMP    PSK  360Mbps                             
+ AE:E2:D3:85:76:AE   112 -65dbm     WPA2      CCMP    PSK   54Mbps DIRECT-AE-HP/ENVY/Photo/6200
+ 36:23:03:1A:27:D6     4 -61dbm     WPA2      CCMP    PSK  360Mbps                             
+ EC:F4:51:D6:75:5D     1 -61dbm     WPA2      CCMP    PSK   54Mbps MiFibra-755B                
+ 30:23:03:1A:27:D6     4 -50dbm     WPA2      CCMP    PSK  360Mbps mar                         
+ B8:69:F4:3A:6E:0F   128 -50dbm WPA2/WPA      CCMP    PSK 1170Mbps mar                         
+ B8:69:F4:3A:6E:10     7 -40dbm WPA2/WPA      CCMP    PSK   54Mbps mar                         
+ 00:25:00:FF:94:73    44  ~ dbm      OPN                    ~ Mbps                             
+ ----------------- ----- ------ -------- --------- ------ -------- ----------------------------
+
+ 
+ ---------------------------------------------------------------
+ Equips Terminals detectats (wlan1 durant 30s).
+ ---------------------------------------------------------------
+      MAC terminal Senyal Paquets             BSSID ESSID      
+ ----------------- ------ ------- ----------------- ------------
+ 94:17:00:20:2B:65 -75dbm       2 D4:60:E3:00:10:B1 vodafone10B0
+ 14:A7:8B:99:DE:97 -64dbm      25 EC:F4:51:D6:75:5D MiFibra-755B
+ FE:3E:B7:B2:D8:6D -55dbm      14 00:25:00:FF:94:73 
+ 58:D3:49:1F:BC:CE -53dbm      12 B8:69:F4:3A:6E:0F mar
+ EE:0D:80:E7:0F:18 -52dbm      12 00:25:00:FF:94:73 
+ E0:2B:96:9B:19:10 -51dbm      12 B8:69:F4:3A:6E:0F mar
+ 00:F3:61:73:BD:8F -39dbm       1 30:23:03:1A:24:FC mar
+ 14:A7:8B:99:DE:9A  ~ dbm       1 EC:F4:51:D6:75:5D MiFibra-755B
+ ----------------- ------ ------- ----------------- ------------
+ 
+ Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.
+ 
