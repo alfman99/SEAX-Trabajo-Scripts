@@ -219,14 +219,13 @@ if [ -f "$file" ] ; then
 fi
 touch log_abast.txt
 
-contador=1
-nombres_interfaces_wifi=()
+nombres_interfaces_wifi=""
 # phys_dispositivos_wifi=()
-while [ "$contador" -le "$num_interfaces_wifi" ]
-do
-    nombres_interfaces_wifi+=("$(/usr/sbin/iw dev | grep 'Interface' | awk '{print $2}' | sed -n "$contador"p)")
-    #  phys_dispositivos_wifi+=("$(/usr/sbin/iw dev | grep 'phy' | sed -n "$contador"p | sed 's/\#//')")
-    print_punts_access_detectats "$nombres_interfaces_wifi" >> $fitxerOutputTmp
+interfaces_wifi="$(/usr/sbin/iw dev  | grep -w 'Interface' | awk '{print $2}' )"
+readarray -t nombres_interfaces_wifi <<< "$interfaces_wifi"
+ for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
+    # phys_dispositivos_wifi+=("$(/usr/sbin/iw dev | grep 'phy' | sed -n "$contador"p | sed 's/\#//')")
+    print_punts_access_detectats "${nombres_interfaces_wifi[index]}" >> $fitxerOutputTmp
     ((contador++))
 done
 echo $'\n Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.' >> $fitxerOutputTmp
