@@ -114,17 +114,16 @@ print_punts_access_detectats() {
   # Header tabla
     txt_tabla="$(printf "%+18s %+6s %+7s %+9s %+10s %+7s %+9s %-29s" "BSSID" "Canal" "Senyal" "Clau" "Xifrat" "Auten." "Vmax" "ESSID" )"
     txt_tabla+="$(printf "\n %+18s %+6s %+7s %+9s %+10s %+7s %+9s %-29s" "-----------------" "-----" "------" "--------" "---------" "------" "--------" "----------------------------")"
-    interfaz="$(/sbin/iw dev | grep Interface | awk '{print $2}')"
     header_tabla="$(printf "%s." " Punts d'Accés detectats ($1 durant $tiempo_escaneo s)")"
     header_station="$(printf "%s." " Equips Terminals detectats ($1 durant $tiempo_escaneo s)")"
     txt_station="$(printf "%+18s %+7s %+8s %+18s %+13s" "MAC terminal" "Senyal" "Paquets" "BSSID" "ESSID")"
     txt_station+="$(printf "\n %+18s %+7s %+8s %+18s %+13s" "-----------------" "------" "-------" "-----------------" "------------")"
     #Separamos los acces point con los stations
-    # $(timeout --foreground 20 /usr/sbin/airodump-ng $interfaz -w archivoTemp_mk --write-interval 1 -o csv)
-    # numero="$(awk '/Station/{ print NR; exit }' archivoTemp_mk-01.csv)"
-    # num1="$((numero-1))"
-    # $(head -n $num1 archivoTemp_mk-01.csv > output1)
-    # $(tail -n +$numero archivoTemp_mk-01.csv > output2)
+    text="$(timeout --foreground 20 /usr/sbin/airodump-ng $1 -w archivoTemp_mk --write-interval 1 -o csv)"
+    numero="$(awk '/Station/{ print NR; exit }' archivoTemp_mk-01.csv)"
+    num1="$((numero-1))"
+    $(head -n $num1 archivoTemp_mk-01.csv > output1)
+    $(tail -n +$numero archivoTemp_mk-01.csv > output2)
 
 
     # Obtenemos las columnas
@@ -204,9 +203,9 @@ print_punts_access_detectats() {
     echo "$header_station"
     imprimir_n_lineas "$maxima_anchura"
     echo "$txt_station"
-    # $(rm archivoTemp_mk-01.csv)
-    # $(rm output1)
-    # $(rm output2)
+    $(rm archivoTemp_mk-01.csv)
+    $(rm output1)
+    $(rm output2)
 }
 
 # Empieza "main"
