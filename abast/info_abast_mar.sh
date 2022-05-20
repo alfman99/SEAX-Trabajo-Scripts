@@ -220,7 +220,7 @@ fi
 $(touch log_abast.txt)
 
 # phys_dispositivos_wifi=()
-interfaces_wifi="$(cat output_alfredot.txt | grep -w 'Interface' | awk '{print $2}' )"
+interfaces_wifi="$(/usr/sbin/iw dev | grep -w 'Interface' | awk '{print $2}' )"
 readarray -t nombres_interfaces_wifi <<< "$interfaces_wifi"
 for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     # phys_dispositivos_wifi+=("$(/usr/sbin/iw dev | grep 'phy' | sed -n "$contador"p | sed 's/\#//')")
