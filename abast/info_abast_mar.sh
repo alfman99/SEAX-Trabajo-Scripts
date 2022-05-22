@@ -1,21 +1,5 @@
 #!/bin/bash
 
-version_script="0.0.2"
-fecha_version="20/05/2022"
-nombre_fichero_output="log_abast.txt"
-
-fecha_inicio="$(date '+%Y-%m-%d')" # fecha inicio del analisis
-hora_inicio="$(date '+%H:%M:%S')" # hora inicio del analisis
-
-fitxerOutputTmp="$(mktemp)"
-$(chmod 700 "$fitxerOutputTmp")
-tiempo_escaneo=30 # No se como escanear por un tiempo determinado
-
-num_interfaces_wifi="$(/sbin/iw dev | grep -c ^phy)"
-
-nombres_interfaces_wifi=()
-phys_dispositivos_wifi=()
-
 comprobar_is_es_root() {
   if [ "$EUID" -ne 0 ]
   then echo "Porfavor ejecuta este script como root"
@@ -29,12 +13,12 @@ die() {
 }
 
 usage() {
-  cat << EOF # remove the space between << and EOF, this is due to web plugin issue
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
-Script description here.
+  cat <<EOF
+Usage: $(info_bash.sh "${BASH_SOURCE[0]}") [-h] [-t] integer arg1 [-i] string arg1
 Available options:
 -h, --help      Print this help and exit
 -t, --tiempo    Selecciona por cuantos segundos quieres escanear (por defecto: 30)
+-i, --interfaces Indica para que interficie quiere hacer el análisis, si no se indica nada lo hará para todas.
 EOF
   die
 }
@@ -63,7 +47,7 @@ parse_params() {
 
 # Check if program has all required packages
 comprobar_paquetes_necesarios() {
-  programas_necesarios=("cat" "whoami" "grep" "cut" "printf" "echo" "iw")
+  programas_necesarios=("cat" "whoami" "airodump-ng" "grep" "cut" "printf" "echo" "iw" "aircrack-ng" "airmon-ng")
   programas_por_instalar=()
 
   for program in "${programas_necesarios[@]}"
@@ -119,7 +103,7 @@ print_punts_access_detectats() {
     txt_station="$(printf "%+18s %+7s %+8s %+18s %+13s" "MAC terminal" "Senyal" "Paquets" "BSSID" "ESSID")"
     txt_station+="$(printf "\n %+18s %+7s %+8s %+18s %+13s" "-----------------" "------" "-------" "-----------------" "------------")"
     #Separamos los acces point con los stations
-    text="$(timeout --foreground 20 /usr/sbin/airodump-ng $1 -w archivoTemp_mk --write-interval 1 -o csv)"
+    text="$(timeout --foreground $tiempo_escaneo airodump-ng $1 -w archivoTemp_mk --write-interval 1 -o csv)"
     numero="$(awk '/Station/{ print NR; exit }' archivoTemp_mk-01.csv)"
     num1="$((numero-1))"
     $(head -n $num1 archivoTemp_mk-01.csv > output1)
@@ -209,9 +193,55 @@ print_punts_access_detectats() {
 }
 
 # Empieza "main"
-comprobar_is_es_root
-parse_params "$@" # Parsea los parametros introducidos
-# comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquetes necesarios para la ejecucion del programa
+comprobar_is_es_root # Comprobamos el root 
+comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquetes necesarios para la ejecucion del programa
+
+
+version_script="1.0.0"
+fecha_version="24/05/2022"
+nombre_fichero_output="log_abast.txt"
+
+fecha_inicio="$(date '+%Y-%m-%d')" # fecha inicio del analisis
+hora_inicio="$(date '+%H:%M:%S')" # hora inicio del analisis
+
+fitxerOutputTmp="$(mktemp)"
+$(chmod 700 "$fitxerOutputTmp")
+tiempo_escaneo=30
+interfice_unica=""
+
+# Comrobamos interficies
+re='^[0-9]+$'
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  $(usage())
+fi
+if [ "$1" == "-t" ] || [ "$1" == "--tiempo" ]; then
+  if ! [[ $2 =~ $re ]] ; then
+    echo "error: No es un número" >&2; exit 1
+  fi
+  printf "Cambiando tiempo de 30 segunddos a $2\n"
+  tiempo_escaneo="$2"
+elif [ "$3" == "-t" ] || [ "$3" == "--tiempo" ]; then
+  if ! [[ "$4" =~ $re ]] ; then
+    echo "error: No es un número" >&2; exit 1
+  fi
+  printf "Cambiando tiempo de 30 segunddos a $4\n"
+  tiempo_escaneo="$4"
+fi
+if [ "$1" == "-i" ] || [ "$1" == "--interfaces" ]; then
+  valor="$(iw dev | grep $2)"
+  if [ -z "$valor" ]; then
+    echo "error: No existe la interficie" >&2; exit 1
+  fi
+  printf "Se analizará solo la interfice $2\n"
+  interfice_unica="$2"
+elif [ "$3" == "-i" ] || [ "$3" == "--interfaces" ]; then
+  valor="$(iw dev | grep $4)"
+  if [ -z "$valor" ]; then
+    echo "error: No existe la interficie" >&2; exit 1
+  fi
+  printf "Se analizará solo la interfice $4\n"
+  interfice_unica="$4"
+fi
 
 file="log_abast.txt"
 if [ -f "$file" ] ; then
@@ -219,14 +249,53 @@ if [ -f "$file" ] ; then
 fi
 $(touch log_abast.txt)
 
-# phys_dispositivos_wifi=()
-interfaces_wifi="$(/usr/sbin/iw dev | grep -w 'Interface' | awk '{print $2}' )"
-readarray -t nombres_interfaces_wifi <<< "$interfaces_wifi"
+# Checkeamos si solo debemos hacerlo para una interficie
+nombres_interfaces_wifi=()
+if [ -z "$interfice_unica" ]; then
+  interfaces_wifi="$(iw dev | grep -w 'Interface' | awk '{print $2}' )"
+  readarray -t nombres_interfaces_wifi <<< "$interfaces_wifi"
+else
+  nombres_interfaces_wifi="$interfice_unica"
+fi
+
+# Scaneamos para las interficies dadas y antes de scanear, activamos el modo monitor. 
+# Eliminamos los procesos necesarios para poder activar el modo monitor.
+valor="$(airmon-ng check)"
+if [ -n "$valor" ]; then
+  printf "$valor"
+  echo -e "\n"   
+  echo "Hay procesos que interfieren, quieres eliminarlos? [S/N]"
+  read valor
+  resultado=0
+  while [ $resultado -ne 1 ]; do
+    if [ "$valor" == "S" ]; then
+      $(airmon-ng check kill &> /dev/null)
+      resultado=1
+    elif [ "$valor" == "N" ]; then
+      printf "Saliendo del programa..."
+      exit 1
+    elif [ "$valor" != "Y" ] && [ "$valor" != "N" ]; then
+      echo "Hay procesos que interfieren, quieres eliminarlos? [S/N]. Solo se acepta S o N. "
+      read valor
+    fi
+  done
+fi
+
 for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
-    # phys_dispositivos_wifi+=("$(/usr/sbin/iw dev | grep 'phy' | sed -n "$contador"p | sed 's/\#//')")
+    $(iwconfig "${nombres_interfaces_wifi[index]}" >> archivo_temp)
+    res="$(cat archivo_temp | grep "${nombres_interfaces_wifi[index]}" | grep Monitor)"
+    printf "$res"
+    if [ -z "$res" ]; then
+      printf "Activando el modo monitor para: "${nombres_interfaces_wifi[index]}"\n"
+      $(airmon-ng start "${nombres_interfaces_wifi[index]}" >> archivo_temp2)
+      nombres_interfaces_wifi[index]="$(cat archivo_temp2 | grep enabled | awk '{print $7}' | cut -d ] -f2)"
+      $(rm archivo_temp2)
+    fi
+    $(rm archivo_temp)
     printf "Sacando datos para: "${nombres_interfaces_wifi[index]}"\n"
     $(print_punts_access_detectats "${nombres_interfaces_wifi[index]}" >> $fitxerOutputTmp)
 done
+
 $(echo $'\n Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.' >> $fitxerOutputTmp)
 $(print_header_start >> $file)
 $(cat $fitxerOutputTmp >> $file)
