@@ -175,23 +175,25 @@ print_usuarios_activos() {
 
 }
 
+print_ports_actius() {
+  header="$(printf "\n%s" " Ports actius detectats al sistema")"
+  maxima_anchura="$(echo "$header" | wc -L)"
+
+  imprimir_n_lineas "$maxima_anchura"
+  echo "$header"
+  imprimir_n_lineas "$maxima_anchura"
+}
+
 print_nftables() {
 
-  value_info="$(nft list ruleset)"
-  # value_info=""
-  # while read line
-  # do
-  #   value_info+="$(printf " \n%s" "$line")"
-  # done < <(echo "$nft_table_value")
-
+  value_info="\n$(nft list ruleset)"
   maxima_anchura="$(echo "$value_info" | wc -L)"
-
   header="$(printf "\n%s" " Informació NFTables")"
 
   imprimir_n_lineas "$maxima_anchura"
   echo "$header"
   imprimir_n_lineas "$maxima_anchura"
-  echo "$value_info"
+  echo -e "$value_info"
   imprimir_n_lineas "$maxima_anchura"
 
 }
@@ -206,11 +208,13 @@ comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquet
 
 
 
-#{
+{
   print_header_start
   echo -e "\n"
   print_usuarios_activos
-  echo -e "\n"
+  echo -e "\n\n"
+  print_ports_actius
+  echo -e "\n\n"
   print_nftables
-#} > "$nombre_fichero_output"
+} > "$nombre_fichero_output"
 
