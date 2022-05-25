@@ -1,0 +1,145 @@
+ ---------------------------------------------------------------------------------------------------
+ Anàlisi dels serveis de la xarxa local realitzada per l'usuari root de l'equip seax.epsevg.upc.edu.
+ Sistema operatiu Debian GNU/Linux 11 (bullseye).
+ Versió del script 1.0.0 compilada el 25/05/2022.
+ Anàlisi iniciada en data 2022-05-25 a les 23:51:29 i finalitzada en data 2022-05-25 a les 23:53:57.
+ ---------------------------------------------------------------------------------------------------
+
+
+ --------------------------------------------------------------------------
+ Anàlisi de Serveis UDP de la xarxa local (10.0.2.0/24).
+ S'han detectat 11 serveis i 4 equips a la xarxa local.
+ --------------------------------------------------------------------------
+        Port Servei             Num @IP
+    138(udp) netbios-dgm        [1] 10.0.2.15
+   3702(udp) ws-discovery       [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+    137(udp) netbios-ns         [4] 10.0.2.2, 10.0.2.3, 10.0.2.4, 10.0.2.15
+   1900(udp) upnp               [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+     67(udp) dhcps              [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+   4500(udp) nat-t-ike          [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+     68(udp) dhcpc              [1] 10.0.2.15
+     69(udp) tftp               [1] 10.0.2.4
+   5050(udp) mmcc               [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+   5353(udp) zeroconf           [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+   5355(udp) llmnr              [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+ --------------------------------------------------------------------------
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Anàlisi de Serveis UDP de la xarxa local (10.0.2.0/24).
+ S'han detectat 4 equips i 11 serveix a la xarxa local.
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ @IP          Num Serveis
+ 10.0.2.15    [3] 68(udp) dhcpc, 137(udp) netbios-ns, 138(udp) netbios-dgm
+ 10.0.2.2     [8] 67(udp) dhcps, 137(udp) netbios-ns, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
+ 10.0.2.3     [8] 67(udp) dhcps, 137(udp) netbios-ns, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
+ 10.0.2.4     [9] 67(udp) dhcps, 69(udp) tftp, 137(udp) netbios-ns, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+ --------------------------------------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (10.0.2.0/24).
+ S'han detectat 8 serveis i 4 equips a la xarxa local.
+ --------------------------------------------------------------------------
+        Port Servei             Num @IP
+   2222(tcp) EtherNetIP-1       [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+   5357(tcp) wsdapi             [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+    445(tcp) microsoft-ds       [4] 10.0.2.2, 10.0.2.3, 10.0.2.4, 10.0.2.15
+    135(tcp) msrpc              [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+     22(tcp) ssh                [1] 10.0.2.15
+   5432(tcp) postgresql         [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+   3389(tcp) ms-wbt-server      [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+    139(tcp) netbios-ssn        [1] 10.0.2.15
+ --------------------------------------------------------------------------
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (10.0.2.0/24).
+ S'han detectat 4 equips i 8 serveix a la xarxa local.
+ -----------------------------------------------------------------------------------------------------------------------------------------------
+ @IP          Num Serveis
+ 10.0.2.15    [3] 22(tcp) ssh, 139(tcp) netbios-ssn, 445(tcp) microsoft-ds
+ 10.0.2.2     [6] 135(tcp) msrpc, 445(tcp) microsoft-ds, 2222(tcp) EtherNetIP-1, 3389(tcp) ms-wbt-server, 5357(tcp) wsdapi, 5432(tcp) postgresql
+ 10.0.2.3     [6] 135(tcp) msrpc, 445(tcp) microsoft-ds, 2222(tcp) EtherNetIP-1, 3389(tcp) ms-wbt-server, 5357(tcp) wsdapi, 5432(tcp) postgresql
+ 10.0.2.4     [6] 135(tcp) msrpc, 445(tcp) microsoft-ds, 2222(tcp) EtherNetIP-1, 3389(tcp) ms-wbt-server, 5357(tcp) wsdapi, 5432(tcp) postgresql
+ -----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+ --------------------------------------------
+ Anàlisi de Serveis UDP de la xarxa local (192.0.2.0/24).
+ S'han detectat 3 serveis i 1 equips a la xarxa local.
+ --------------------------------------------
+        Port Servei             Num @IP
+    138(udp) netbios-dgm        [1] 192.0.2.7
+    137(udp) netbios-ns         [1] 192.0.2.7
+     68(udp) dhcpc              [1] 192.0.2.7
+ --------------------------------------------
+
+
+ -------------------------------------------------------------------------
+ Anàlisi de Serveis UDP de la xarxa local (192.0.2.0/24).
+ S'han detectat 1 equips i 3 serveix a la xarxa local.
+ -------------------------------------------------------------------------
+ @IP          Num Serveis
+ 192.0.2.7    [3] 68(udp) dhcpc, 137(udp) netbios-ns, 138(udp) netbios-dgm
+ -------------------------------------------------------------------------
+
+
+ --------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (192.0.2.0/24).
+ S'han detectat 3 serveis i 1 equips a la xarxa local.
+ --------------------------------------------
+        Port Servei             Num @IP
+    445(tcp) microsoft-ds       [1] 192.0.2.7
+     22(tcp) ssh                [1] 192.0.2.7
+    139(tcp) netbios-ssn        [1] 192.0.2.7
+ --------------------------------------------
+
+
+ -------------------------------------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (192.0.2.0/24).
+ S'han detectat 1 equips i 3 serveix a la xarxa local.
+ -------------------------------------------------------------------------
+ @IP          Num Serveis
+ 192.0.2.7    [3] 22(tcp) ssh, 139(tcp) netbios-ssn, 445(tcp) microsoft-ds
+ -------------------------------------------------------------------------
+
+
+ ---------------------------------------------
+ Anàlisi de Serveis UDP de la xarxa local (10.10.10.1).
+ S'han detectat 3 serveis i 1 equips a la xarxa local.
+ ---------------------------------------------
+        Port Servei             Num @IP
+    138(udp) netbios-dgm        [1] 10.10.10.1
+    137(udp) netbios-ns         [1] 10.10.10.1
+     68(udp) dhcpc              [1] 10.10.10.1
+ ---------------------------------------------
+
+
+ -------------------------------------------------------------------------
+ Anàlisi de Serveis UDP de la xarxa local (10.10.10.1).
+ S'han detectat 1 equips i 3 serveix a la xarxa local.
+ -------------------------------------------------------------------------
+ @IP          Num Serveis
+ 10.10.10.1   [3] 68(udp) dhcpc, 137(udp) netbios-ns, 138(udp) netbios-dgm
+ -------------------------------------------------------------------------
+
+
+ ---------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (10.10.10.1).
+ S'han detectat 3 serveis i 1 equips a la xarxa local.
+ ---------------------------------------------
+        Port Servei             Num @IP
+    445(tcp) microsoft-ds       [1] 10.10.10.1
+     22(tcp) ssh                [1] 10.10.10.1
+    139(tcp) netbios-ssn        [1] 10.10.10.1
+ ---------------------------------------------
+
+
+ -------------------------------------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (10.10.10.1).
+ S'han detectat 1 equips i 3 serveix a la xarxa local.
+ -------------------------------------------------------------------------
+ @IP          Num Serveis
+ 10.10.10.1   [3] 22(tcp) ssh, 139(tcp) netbios-ssn, 445(tcp) microsoft-ds
+ -------------------------------------------------------------------------
