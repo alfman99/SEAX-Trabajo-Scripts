@@ -2,30 +2,112 @@
  Anàlisi dels usuaris, ports i taules NF actius a l'equip realitzada per l'usuari root de l'equip man.
  Sistema operatiu Ubuntu 22.04 LTS (Jammy Jellyfish).
  Versió del script 0.0.1 compilada el 20/05/2022.
- Anàlisi iniciada en data 2022-05-20 a les 17:38:40 i finalitzada en data 2022-05-20 a les 17:38:40.
+ Anàlisi iniciada en data 2022-05-25 a les 22:34:05 i finalitzada en data 2022-05-25 a les 22:34:08.
  -----------------------------------------------------------------------------------------------------
 
  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  Usuaris actius detectats al sistema
  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Usuari actual:                   root(0) [pts/0] 
-  Usuaris operatius:               root(0) [pts/0] 
-  Usuaris amb accés root:          1  - root(0) 
-  Usuaris amb processos actius:    2  - root[91], messagebus[1] 
+  Usuaris operatius:               root, alf, postgres,  
+  Usuaris amb accés root:          root,   
+  Usuaris amb processos actius:    alf[124], avahi[2], colord[1], kernoops[2], message+[0], postgres[7], root[274], rtkit[1], syslog[1], systemd+[0],  
   Usuaris del sistema:             root(0), daemon(1), bin(2), sys(3), sync(4), games(5), man(6), lp(7), mail(8), news(9), uucp(10), proxy(13), www-data(33), backup(34), list(38), irc(39), gnats(41), nobody(65534), systemd-network(100), systemd-resolve(101), messagebus(102), systemd-timesync(103), syslog(104), _apt(105), tss(106), uuidd(107), systemd-oom(108), tcpdump(109), avahi-autoipd(110), usbmux(111), dnsmasq(112), kernoops(113), avahi(114), cups-pk-helper(115), rtkit(116), whoopsie(117), sssd(118), speech-dispatcher(119), nm-openvpn(120), saned(121), colord(122), geoclue(123), pulse(124), gnome-initial-setup(125), hplip(126), gdm(127), alf(1000), nvidia-persistenced(128), postgres(129), 
 
   Usuaris connectats al sistema: 2 - alf alf 
-       Usuari   Terminal     Establiment      Adreça
-       alf      :1           2022-05-20 16:37 (:1)
-       alf      pts/2        2022-05-20 17:38
+          Usuari   Terminal     Establiment      Adreça
+          alf      tty2         2022-05-25 19:42 (tty2)
+          alf      pts/3        2022-05-25 22:34
 
-  Usuaris connectats al sistema: 2 - alf alf 
-       Usuari   Terminal     Establiment      Adreça
-       alf      :1           2022-05-20 16:37 (:1)
-       alf      pts/2        2022-05-20 17:38
+  Usuaris amb conexions actives: 3 - alf postgres root 
+          Usuari         (@IP:Port                 <->         @IP:Port                  Procés:Usuari)  
+          alf            (127.0.0.1:52098          <->         127.0.0.53:53             10194/alf@?      
+          postgres       (127.0.0.1:46808          <->         127.0.0.1:46808           9650/postgres@?  
+          root           (192.168.1.62%wlo1:68     <->         192.168.1.1:67            714/root@?       
+          alf            (192.168.1.62:53598       <->         20.189.173.15:443         10141/alf@?      
+          alf            (192.168.1.62:59898       <->         104.18.192.57:443         48702/alf@?      
+          alf            (192.168.1.62:45628       <->         151.101.129.69:443        48702/alf@?      
+          alf            (192.168.1.62:40956       <->         20.81.50.155:443          10129/alf@?      
+          alf            (192.168.1.62:38736       <->         151.101.132.193:443       48702/alf@?      
+          alf            (192.168.1.62:60704       <->         198.252.206.25:443        48702/alf@?      
+          alf            (192.168.1.62:60732       <->         198.252.206.25:443        48702/alf@?      
+          alf            (192.168.1.62:56844       <->         66.102.1.188:5228         48702/alf@?      
+          alf            (192.168.1.62:35488       <->         188.114.96.15:443         48702/alf@?      
+          alf            (192.168.1.62:59896       <->         104.18.192.57:443         48702/alf@?      
+          alf            (192.168.1.62:35798       <->         104.18.139.47:443         48702/alf@?      
+          alf            (192.168.1.62:56802       <->         147.83.13.23:22           271659/alf@pts/2 
+          alf            (192.168.1.62:60070       <->         104.18.13.33:443          48702/alf@?      
+
+  Usuaris amb més CPU>5%:       
+          Usuari   CPU%         pid/procés      
+          -        -%           -/-              
+
+  Usuaris amb ús de RAM>5%:     
+          Usuari   MEM%         pid/procés      
+          -        -%           -/-              
+
+
+  No hay servidor SSH en esta máquina.
+
+
  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
- 
+
+ ---------------------------------
+ Ports actius detectats al sistema
+ ---------------------------------
+
+
+ -------------------------------------------------------------------------------------------------------------
  Informació NFTables
- 
- 
+ -------------------------------------------------------------------------------------------------------------
+table ip nat {
+	chain DOCKER {
+		iifname "docker0" counter packets 0 bytes 0 return
+	}
+
+	chain POSTROUTING {
+		type nat hook postrouting priority srcnat; policy accept;
+		oifname != "docker0" ip saddr 172.17.0.0/16 counter packets 0 bytes 0 masquerade 
+	}
+
+	chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		fib daddr type local counter packets 1 bytes 76 jump DOCKER
+	}
+
+	chain OUTPUT {
+		type nat hook output priority -100; policy accept;
+		ip daddr != 127.0.0.0/8 fib daddr type local counter packets 0 bytes 0 jump DOCKER
+	}
+}
+table ip filter {
+	chain DOCKER {
+	}
+
+	chain DOCKER-ISOLATION-STAGE-1 {
+		iifname "docker0" oifname != "docker0" counter packets 0 bytes 0 jump DOCKER-ISOLATION-STAGE-2
+		counter packets 0 bytes 0 return
+	}
+
+	chain DOCKER-ISOLATION-STAGE-2 {
+		oifname "docker0" counter packets 0 bytes 0 drop
+		counter packets 0 bytes 0 return
+	}
+
+	chain FORWARD {
+		type filter hook forward priority filter; policy drop;
+		counter packets 0 bytes 0 jump DOCKER-USER
+		counter packets 0 bytes 0 jump DOCKER-ISOLATION-STAGE-1
+		oifname "docker0" ct state related,established counter packets 0 bytes 0 accept
+		oifname "docker0" counter packets 0 bytes 0 jump DOCKER
+		iifname "docker0" oifname != "docker0" counter packets 0 bytes 0 accept
+		iifname "docker0" oifname "docker0" counter packets 0 bytes 0 accept
+	}
+
+	chain DOCKER-USER {
+		counter packets 0 bytes 0 return
+	}
+}
+ -------------------------------------------------------------------------------------------------------------
+

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version_script="0.0.1"
-fecha_version="20/05/2022"
+version_script="0.5.0"
+fecha_version="25/05/2022"
 nombre_fichero_output="log_equip.txt"
 
 fecha_inicio=$(date '+%Y-%m-%d') # fecha inicio del analisis
@@ -397,7 +397,7 @@ print_ports_actius() {
 
 print_nftables() {
 
-  value_info="\n$(nft list ruleset)"
+  value_info="\n$(nft list ruleset | tr '\n' '\n')"
   maxima_anchura="$(echo "$value_info" | wc -L)"
   header="$(printf "\n%s" " Informació NFTables")"
 
@@ -419,14 +419,15 @@ comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquet
 
 
 {
-  print_header_start
-  echo -e "\n"
   print_usuarios_activos
   echo -e "\n\n"
   print_ports_actius
   echo -e "\n\n"
   print_nftables
   echo -e "\n"
-  print_usuarios_conexiones_activas
 } > "$nombre_fichero_output"
 
+{
+  print_header_start
+  echo -e "\n"
+} | cat - "$nombre_fichero_output" > temp && mv temp "$nombre_fichero_output"
