@@ -388,10 +388,19 @@ print_ssh_config() {
 
 print_ports_actius() {
   header="$(printf "\n%s" " Ports actius detectats al sistema")"
-  maxima_anchura="$(echo "$header" | wc -L)"
+  
+
+  text="$(printf "\n Ports TCP en mode LISTEN\n%s" "$(ss -ptnl)")"
+  text+="$(printf "\n\n Ports UDP en mode LISTEN\n%s" "$(ss -punl)")"
+  text+="$(printf "\n\n Ports TCP amb connecxions establertes\n%s" "$(ss -ptne)")"
+  text+="$(printf "\n\n Ports UDP amb connecxions establertes\n%s" "$(ss -pune)")"
+
+  maxima_anchura="$(echo "$text" | wc -L)"
 
   imprimir_n_lineas "$maxima_anchura"
   echo "$header"
+  imprimir_n_lineas "$maxima_anchura"
+  echo -e "$text"
   imprimir_n_lineas "$maxima_anchura"
 }
 
