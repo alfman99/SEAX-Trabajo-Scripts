@@ -197,9 +197,8 @@ comprobar_is_es_root # Comprobamos el root
 comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquetes necesarios para la ejecucion del programa
 
 
-version_script="1.0.0"
-fecha_version="24/05/2022"
-nombre_fichero_output="log_abast.txt"
+version_script="0.0.2"
+fecha_version="20/05/2022"
 
 fecha_inicio="$(date '+%Y-%m-%d')" # fecha inicio del analisis
 hora_inicio="$(date '+%H:%M:%S')" # hora inicio del analisis
@@ -284,7 +283,6 @@ fi
 for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     $(iwconfig "${nombres_interfaces_wifi[index]}" >> archivo_temp)
     res="$(cat archivo_temp | grep "${nombres_interfaces_wifi[index]}" | grep Monitor)"
-    printf "$res"
     if [ -z "$res" ]; then
       printf "Activando el modo monitor para: "${nombres_interfaces_wifi[index]}"\n"
       $(airmon-ng start "${nombres_interfaces_wifi[index]}" >> archivo_temp2)
