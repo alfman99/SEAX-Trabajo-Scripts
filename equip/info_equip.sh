@@ -55,7 +55,7 @@ parse_params() {
 
 # Check if program has all required packages
 comprobar_paquetes_necesarios() {
-  programas_necesarios=("cat" "whoami" "grep" "cut" "printf" "echo" "iw")
+  programas_necesarios=("cat" "whoami" "grep" "cut" "printf" "echo" "iw" "bc")
   programas_por_instalar=()
 
   for program in "${programas_necesarios[@]}"
@@ -301,7 +301,7 @@ print_uso_mas_memoria() {
   text+="$(printf "\n%-33s%s" "  Usuaris amb ús de RAM>$porcentaje%:" "")"
   text+="$(printf "\n          %-9s%-13s%-17s" "Usuari" "MEM%" "pid/procés")"
 
-  users_active="$(sudo who)"
+  users_active="$(who)"
 
   vacio=0
   while read line
