@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version_script="0.0.1"
-fecha_version="20/05/2022"
+version_script="0.5.0"
+fecha_version="25/05/2022"
 nombre_fichero_output="log_equip.txt"
 
 fecha_inicio=$(date '+%Y-%m-%d') # fecha inicio del analisis
@@ -179,9 +179,32 @@ print_usuarios_conexiones_activas() {
 print_usuarios_activos() {
   
   texto1="$(whoami)($(id -u)) [pts/$(id -u)]"
-  texto2="" #FALTA
-  texto3="" #FALTA
-  texto4="" #FALTA
+  
+  texto2=""
+  users_with_shell="$(grep -Ff /etc/shells /etc/passwd | cut -d: -f1)"
+  while read usuario
+  do
+    texto2+="$(printf "%s, " "$usuario")"
+  done < <(echo "$users_with_shell")
+
+  texto3=""
+  users_with_uid_0="$(getent passwd 0 | cut -d: -f1)"
+
+  while read usuario
+  do
+    texto3+="$(printf "%s, " "$(echo "$usuario" | awk '{print $1}')") "
+  done < <(echo "$users_with_uid_0")
+
+  
+
+  texto4=""
+  usuarios_ps="$(ps -aux | awk '{print $1}' | sed '1 d' | sort | uniq)"
+
+  while read line
+  do
+    num_procesos="$(ps -U "$line" --no-headers 2>/dev/null | wc -l)"
+    texto4+="$(printf "%s[%s], " "$line" "$num_procesos")"
+  done < <(echo "$usuarios_ps")
 
   # Usuarios del sistema junto con su UID y PID
   texto5=""
@@ -205,22 +228,33 @@ print_usuarios_activos() {
   echo "$text"
   print_usuarios_conectados_sistema
   print_usuarios_conexiones_activas
+  print_uso_mas_cpu 5
+  print_uso_mas_memoria 5
+  echo -e "\n"
   print_ssh_config
+  echo -e "\n"
   imprimir_n_lineas "$maxima_anchura"
 
 }
 
-# DOING
 print_uso_mas_cpu() {
 
   porcentaje="$1"
 
+  text=""
+  text+="$(printf "\n%-33s%s" "  Usuaris amb més CPU>$porcentaje%:" "")"
+  text+="$(printf "\n          %-9s%-13s%-17s" "Usuari" "CPU%" "pid/procés")"
+
   users_active="$(who)"
 
+  vacio=0
   while read line
   do
     usuario="$(echo "$line" | awk '{print $1}')"
-    procesos="$(top -b -n 1 -u "$usuario")"
+    cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
+    procesos="$(top -b -n 1 -u "$usuario" | sed -n '/PID/,$p'|sed '/PID/d')"
+
+    procesamiento_total="0"
 
     i=1
     while read line
@@ -231,15 +265,88 @@ print_uso_mas_cpu() {
       fi
 
       # Contar porcentaje de CPU que está siendo utilizada por el usuario
-      porcentaje_cpu="$(echo "$line" | awk '{print $9}' | sed -e 's/%//')"
+      # and replace , with .
+      porcentaje_cpu="$(echo "$line" | awk '{print $9}' | sed -e 's/%//' | sed -e 's/,/./')"
 
+      # echo "$porcentaje_cpu"
+      procesamiento_total="$(echo "$procesamiento_total + $porcentaje_cpu" | bc)"
+      
 
-      echo "$usuario"
     done < <(echo "$procesos")
+
+    total_porcentaje=$(echo "$procesamiento_total / $cpus" | bc)
 
     # Si el porcentaje de CPU calculado en el bucle anterior es mas grande que el parametro de entrada, añadir usuario a la lista para mostrarlo luego
 
+    if [ "$total_porcentaje" -gt "$porcentaje" ]; then
+      text+="$(printf "\n          %-9s%-13s%-17s" "$usuario" "$total_porcentaje%" "noseque")"
+      vacio=1
+    fi
   done < <(echo "$users_active")
+
+  if [ "$vacio" -eq 0 ]; then
+    text+="$(printf "\n          %-9s%-13s%-17s" "-" "-%" "-/-")"
+  fi
+
+  echo -e "$text"
+
+
+}
+
+print_uso_mas_memoria() {
+  
+  porcentaje="$1"
+
+  text=""
+  text+="$(printf "\n%-33s%s" "  Usuaris amb ús de RAM>$porcentaje%:" "")"
+  text+="$(printf "\n          %-9s%-13s%-17s" "Usuari" "MEM%" "pid/procés")"
+
+  users_active="$(sudo who)"
+
+  vacio=0
+  while read line
+  do
+    usuario="$(echo "$line" | awk '{print $1}')"
+    cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
+    procesos="$(top -b -n 1 -u "$usuario" | sed -n '/PID/,$p'|sed '/PID/d')"
+
+    procesamiento_total="0"
+
+    i=1
+    while read line
+    do
+      if [ "$i" -eq 1 ]; then # saltar la primera linea
+        ((i++))
+        continue
+      fi
+
+      # Contar porcentaje de CPU que está siendo utilizada por el usuario
+      # and replace , with .
+      porcentaje_cpu="$(echo "$line" | awk '{print $10}' | sed -e 's/%//' | sed -e 's/,/./')"
+
+      # echo "$porcentaje_cpu"
+      procesamiento_total="$(echo "$procesamiento_total + $porcentaje_cpu" | bc)"
+      
+
+    done < <(echo "$procesos")
+
+    total_porcentaje=$(echo "$procesamiento_total / $cpus" | bc)
+
+    # Si el porcentaje de CPU calculado en el bucle anterior es mas grande que el parametro de entrada, añadir usuario a la lista para mostrarlo luego
+
+    if [ "$total_porcentaje" -gt "$porcentaje" ]; then
+      text+="$(printf "\n          %-9s%-13s%-17s" "$usuario" "$total_porcentaje%" "noseque")"
+      vacio=1
+    fi
+
+
+  done < <(echo "$users_active")
+
+  if [ "$vacio" -eq 0 ]; then
+    text+="$(printf "\n          %-9s%-13s%-17s" "-" "-%" "-/-")"
+  fi
+
+  echo -e "$text"
 
 
 }
@@ -273,7 +380,7 @@ print_ssh_config() {
 
 
   else 
-    echo "No hay servidor SSH en esta máquina."
+    echo "  No hay servidor SSH en esta máquina."
   fi
 
 
@@ -281,16 +388,25 @@ print_ssh_config() {
 
 print_ports_actius() {
   header="$(printf "\n%s" " Ports actius detectats al sistema")"
-  maxima_anchura="$(echo "$header" | wc -L)"
+  
+
+  text="$(printf "\n Ports TCP en mode LISTEN\n%s" "$(ss -ptnl)")"
+  text+="$(printf "\n\n Ports UDP en mode LISTEN\n%s" "$(ss -punl)")"
+  text+="$(printf "\n\n Ports TCP amb connecxions establertes\n%s" "$(ss -ptne)")"
+  text+="$(printf "\n\n Ports UDP amb connecxions establertes\n%s" "$(ss -pune)")"
+
+  maxima_anchura="$(echo "$text" | wc -L)"
 
   imprimir_n_lineas "$maxima_anchura"
   echo "$header"
+  imprimir_n_lineas "$maxima_anchura"
+  echo -e "$text"
   imprimir_n_lineas "$maxima_anchura"
 }
 
 print_nftables() {
 
-  value_info="\n$(nft list ruleset)"
+  value_info="\n$(nft list ruleset | tr '\n' '\n')"
   maxima_anchura="$(echo "$value_info" | wc -L)"
   header="$(printf "\n%s" " Informació NFTables")"
 
@@ -312,17 +428,15 @@ comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquet
 
 
 {
-  # print_header_start
-  # echo -e "\n"
-  # print_usuarios_activos
-  # echo -e "\n\n"
-  # print_ports_actius
-  # echo -e "\n\n"
-  # print_nftables
-  # echo -e "\n"
-  # print_usuarios_conexiones_activas
-
-  print_uso_mas_cpu
-
+  print_usuarios_activos
+  echo -e "\n\n"
+  print_ports_actius
+  echo -e "\n\n"
+  print_nftables
+  echo -e "\n"
 } > "$nombre_fichero_output"
 
+{
+  print_header_start
+  echo -e "\n"
+} | cat - "$nombre_fichero_output" > temp && mv temp "$nombre_fichero_output"

@@ -1,31 +1,143 @@
  -----------------------------------------------------------------------------------------------------
  Anàlisi dels usuaris, ports i taules NF actius a l'equip realitzada per l'usuari root de l'equip man.
  Sistema operatiu Ubuntu 22.04 LTS (Jammy Jellyfish).
- Versió del script 0.0.1 compilada el 20/05/2022.
- Anàlisi iniciada en data 2022-05-20 a les 17:38:40 i finalitzada en data 2022-05-20 a les 17:38:40.
+ Versió del script 0.5.0 compilada el 25/05/2022.
+ Anàlisi iniciada en data 2022-05-25 a les 22:51:06 i finalitzada en data 2022-05-25 a les 22:51:11.
  -----------------------------------------------------------------------------------------------------
 
  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  Usuaris actius detectats al sistema
  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Usuari actual:                   root(0) [pts/0] 
-  Usuaris operatius:               root(0) [pts/0] 
-  Usuaris amb accés root:          1  - root(0) 
-  Usuaris amb processos actius:    2  - root[91], messagebus[1] 
+  Usuaris operatius:               root, alf, postgres,  
+  Usuaris amb accés root:          root,   
+  Usuaris amb processos actius:    alf[122], avahi[2], colord[1], kernoops[2], message+[0], postgres[7], root[274], rtkit[1], syslog[1], systemd+[0],  
   Usuaris del sistema:             root(0), daemon(1), bin(2), sys(3), sync(4), games(5), man(6), lp(7), mail(8), news(9), uucp(10), proxy(13), www-data(33), backup(34), list(38), irc(39), gnats(41), nobody(65534), systemd-network(100), systemd-resolve(101), messagebus(102), systemd-timesync(103), syslog(104), _apt(105), tss(106), uuidd(107), systemd-oom(108), tcpdump(109), avahi-autoipd(110), usbmux(111), dnsmasq(112), kernoops(113), avahi(114), cups-pk-helper(115), rtkit(116), whoopsie(117), sssd(118), speech-dispatcher(119), nm-openvpn(120), saned(121), colord(122), geoclue(123), pulse(124), gnome-initial-setup(125), hplip(126), gdm(127), alf(1000), nvidia-persistenced(128), postgres(129), 
 
   Usuaris connectats al sistema: 2 - alf alf 
-       Usuari   Terminal     Establiment      Adreça
-       alf      :1           2022-05-20 16:37 (:1)
-       alf      pts/2        2022-05-20 17:38
+          Usuari   Terminal     Establiment      Adreça
+          alf      tty2         2022-05-25 19:42 (tty2)
+          alf      pts/3        2022-05-25 22:51
 
-  Usuaris connectats al sistema: 2 - alf alf 
-       Usuari   Terminal     Establiment      Adreça
-       alf      :1           2022-05-20 16:37 (:1)
-       alf      pts/2        2022-05-20 17:38
+  Usuaris amb conexions actives: 3 - alf postgres root 
+          Usuari         (@IP:Port                 <->         @IP:Port                  Procés:Usuari)  
+          alf            (127.0.0.1:52098          <->         127.0.0.53:53             10194/alf@?      
+          postgres       (127.0.0.1:46808          <->         127.0.0.1:46808           9650/postgres@?  
+          alf            (192.168.1.62:56592       <->         216.58.215.174:443        48702/alf@?      
+          root           (192.168.1.62%wlo1:68     <->         192.168.1.1:67            714/root@?       
+          alf            (192.168.1.62:53598       <->         20.189.173.15:443         10141/alf@?      
+          alf            (192.168.1.62:40390       <->         20.109.240.231:443        10129/alf@?      
+          alf            (192.168.1.62:45628       <->         151.101.129.69:443        48702/alf@?      
+          alf            (192.168.1.62:60704       <->         198.252.206.25:443        48702/alf@?      
+          alf            (192.168.1.62:56844       <->         66.102.1.188:5228         48702/alf@?      
+          alf            (192.168.1.62:56802       <->         147.83.13.23:22           271659/alf@pts/2 
+          alf            (192.168.1.62:60070       <->         104.18.13.33:443          48702/alf@?      
+
+  Usuaris amb més CPU>5%:       
+          Usuari   CPU%         pid/procés      
+          -        -%           -/-              
+
+  Usuaris amb ús de RAM>5%:     
+          Usuari   MEM%         pid/procés      
+          -        -%           -/-              
+
+
+  No hay servidor SSH en esta máquina.
+
+
  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
- 
+
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Ports actius detectats al sistema
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Ports TCP en mode LISTEN
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                   
+LISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*    users:(("systemd-resolve",pid=643,fd=14))
+LISTEN 0      128        127.0.0.1:631       0.0.0.0:*    users:(("cupsd",pid=869,fd=7))           
+LISTEN 0      244        127.0.0.1:5432      0.0.0.0:*    users:(("postgres",pid=9650,fd=5))       
+LISTEN 0      128            [::1]:631          [::]:*    users:(("cupsd",pid=869,fd=6))           
+
+ Ports UDP en mode LISTEN
+State  Recv-Q Send-Q                   Local Address:Port  Peer Address:PortProcess                                   
+UNCONN 0      0                          224.0.0.251:5353       0.0.0.0:*    users:(("chrome",pid=48657,fd=345))      
+UNCONN 0      0                              0.0.0.0:5353       0.0.0.0:*    users:(("avahi-daemon",pid=708,fd=12))   
+UNCONN 0      0                        127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=643,fd=13))
+UNCONN 0      0                              0.0.0.0:631        0.0.0.0:*    users:(("cups-browsed",pid=1293,fd=7))   
+UNCONN 0      0                              0.0.0.0:33627      0.0.0.0:*    users:(("avahi-daemon",pid=708,fd=14))   
+UNCONN 0      0                                 [::]:35962         [::]:*    users:(("avahi-daemon",pid=708,fd=15))   
+UNCONN 0      0                                 [::]:5353          [::]:*    users:(("avahi-daemon",pid=708,fd=13))   
+UNCONN 0      0      [fe80::3855:4d94:7d0:98b1]%wlo1:546           [::]:*    users:(("NetworkManager",pid=714,fd=27)) 
+
+ Ports TCP amb connecxions establertes
+State Recv-Q Send-Q Local Address:Port    Peer Address:PortProcess                                                                                                                                                                                                                                    
+ESTAB 0      0       192.168.1.62:53598  20.189.173.15:443  users:(("code",pid=10141,fd=39)) uid:1000 ino:106760 sk:1002 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/snap.code.code.0f5c9432-8728-4d7d-9dc1-39a71add89d9.scope <->                                                 
+ESTAB 0      0       192.168.1.62:40390 20.109.240.231:443  users:(("code",pid=10129,fd=56)) uid:1000 ino:656759 sk:1007 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/snap.code.code.0f5c9432-8728-4d7d-9dc1-39a71add89d9.scope <->                                                 
+ESTAB 0      0       192.168.1.62:45628 151.101.129.69:443  users:(("chrome",pid=48702,fd=34)) timer:(keepalive,40sec,0) uid:1000 ino:643597 sk:2004 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-google-chrome-48657.scope <->                                        
+ESTAB 0      0       192.168.1.62:60704 198.252.206.25:443  users:(("chrome",pid=48702,fd=66)) timer:(keepalive,30sec,0) uid:1000 ino:118654 sk:400a cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-google-chrome-48657.scope <->                                        
+ESTAB 0      0       192.168.1.62:56844   66.102.1.188:5228 users:(("chrome",pid=48702,fd=60)) timer:(keepalive,24sec,0) uid:1000 ino:102387 sk:400b cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-google-chrome-48657.scope <->                                        
+ESTAB 0      0       192.168.1.62:56802   147.83.13.23:22   users:(("ssh",pid=271659,fd=3)) timer:(keepalive,91min,0) uid:1000 ino:607494 sk:7010 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/app-org.gnome.Terminal.slice/vte-spawn-ad6944a1-16e1-47ab-b7a0-f7191a548c98.scope <->
+ESTAB 0      0       192.168.1.62:60070   104.18.13.33:443  users:(("chrome",pid=48702,fd=46)) timer:(keepalive,39sec,0) uid:1000 ino:301553 sk:d026 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-google-chrome-48657.scope <->                                        
+
+ Ports UDP amb connecxions establertes
+Recv-Q Send-Q     Local Address:Port    Peer Address:Port Process                                                                                                                                                                                                                                                                                                 
+0      0              127.0.0.1:52098     127.0.0.53:53    users:(("code",pid=10194,fd=43)) uid:1000 ino:45938 sk:1 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/snap.code.code.0f5c9432-8728-4d7d-9dc1-39a71add89d9.scope <->                                                                                                                  
+0      0              127.0.0.1:46808      127.0.0.1:46808 users:(("postgres",pid=9657,fd=7),("postgres",pid=9656,fd=7),("postgres",pid=9655,fd=7),("postgres",pid=9654,fd=7),("postgres",pid=9653,fd=7),("postgres",pid=9652,fd=7),("postgres",pid=9650,fd=7)) uid:129 ino:62077 sk:2 cgroup:/system.slice/system-postgresql.slice/postgresql@14-main.service <->
+0      0           192.168.1.62:56592 216.58.215.174:443   users:(("chrome",pid=48702,fd=22)) uid:1000 ino:676798 sk:3011 cgroup:/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-google-chrome-48657.scope <->                                                                                                                               
+0      0      192.168.1.62%wlo1:68       192.168.1.1:67    users:(("NetworkManager",pid=714,fd=25)) ino:18846 sk:3 cgroup:/system.slice/NetworkManager.service <->                                                                                                                                                                                                
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+ -------------------------------------------------------------------------------------------------------------
  Informació NFTables
- 
- 
+ -------------------------------------------------------------------------------------------------------------
+table ip nat {
+	chain DOCKER {
+		iifname "docker0" counter packets 0 bytes 0 return
+	}
+
+	chain POSTROUTING {
+		type nat hook postrouting priority srcnat; policy accept;
+		oifname != "docker0" ip saddr 172.17.0.0/16 counter packets 0 bytes 0 masquerade 
+	}
+
+	chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		fib daddr type local counter packets 1 bytes 76 jump DOCKER
+	}
+
+	chain OUTPUT {
+		type nat hook output priority -100; policy accept;
+		ip daddr != 127.0.0.0/8 fib daddr type local counter packets 0 bytes 0 jump DOCKER
+	}
+}
+table ip filter {
+	chain DOCKER {
+	}
+
+	chain DOCKER-ISOLATION-STAGE-1 {
+		iifname "docker0" oifname != "docker0" counter packets 0 bytes 0 jump DOCKER-ISOLATION-STAGE-2
+		counter packets 0 bytes 0 return
+	}
+
+	chain DOCKER-ISOLATION-STAGE-2 {
+		oifname "docker0" counter packets 0 bytes 0 drop
+		counter packets 0 bytes 0 return
+	}
+
+	chain FORWARD {
+		type filter hook forward priority filter; policy drop;
+		counter packets 0 bytes 0 jump DOCKER-USER
+		counter packets 0 bytes 0 jump DOCKER-ISOLATION-STAGE-1
+		oifname "docker0" ct state related,established counter packets 0 bytes 0 accept
+		oifname "docker0" counter packets 0 bytes 0 jump DOCKER
+		iifname "docker0" oifname != "docker0" counter packets 0 bytes 0 accept
+		iifname "docker0" oifname "docker0" counter packets 0 bytes 0 accept
+	}
+
+	chain DOCKER-USER {
+		counter packets 0 bytes 0 return
+	}
+}
+ -------------------------------------------------------------------------------------------------------------
+
