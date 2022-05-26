@@ -271,14 +271,26 @@ if [ -n "$valor" ]; then
       $(airmon-ng check kill &> /dev/null)
       resultado=1
     elif [ "$valor" == "N" ]; then
-      printf "Saliendo del programa..."
-      exit 1
+      printf "Continue ejecutando bajo su propio riesgo\n"
+      resultado=1
     elif [ "$valor" != "Y" ] && [ "$valor" != "N" ]; then
       echo "Hay procesos que interfieren, quieres eliminarlos? [S/N]. Solo se acepta S o N. "
       read valor
     fi
   done
 fi
+
+# Checkeamos que interficies están up
+AllInterfaces="$(ip link show | awk '{ for (x=1;x<=NR;x+=2) if(FNR==x) print $2 }' | cut -d ":" -f1)"
+mapfile -t  AllInterfaces <<< "$AllInterfaces"
+InterfacesThatAreUp=()
+for ((index=0; index < ${#AllInterfaces[@]}; index++)); do
+  estaUp="$(ip a show ${AllInterfaces[index]} up | wc -l)"
+  if [ "$estaUp" -ne 0 ]; then
+    InterfacesThatAreUp+=("${AllInterfaces[index]}")
+  fi
+done
+
 
 for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     $(iwconfig "${nombres_interfaces_wifi[index]}" >> archivo_temp)
@@ -292,6 +304,16 @@ for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     $(rm archivo_temp)
     printf "Sacando datos para: "${nombres_interfaces_wifi[index]}"\n"
     $(print_punts_access_detectats "${nombres_interfaces_wifi[index]}" >> $fitxerOutputTmp)
+    if [ -z "$res" ]; then
+      printf "Desactivando el modo monitor para: "${nombres_interfaces_wifi[index]}"\n"
+      $(airmon-ng stop "${nombres_interfaces_wifi[index]}" &> /dev/null)
+    fi
+done
+
+printf "Reiniciando redes locales\n"
+for ((index=0; index < ${#InterfacesThatAreUp[@]}; index++)); do
+  $(ifdown ${InterfacesThatAreUp[index]} &> /dev/null)
+  $(ifup ${InterfacesThatAreUp[index]} &> /dev/null)
 done
 
 $(echo $'\n Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.' >> $fitxerOutputTmp)

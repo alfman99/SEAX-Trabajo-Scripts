@@ -103,7 +103,7 @@ prints_serveis_xarxa(){
   txt_tabla_serveis="$(printf "%+12s %+1s %+15s %+1s" "Port" "Servei" "Num" "@IP")"
   txt_tabla_equips="$(printf "%s %12s %s" " @IP" "Num" "Serveis")"
   if [ "$1" == "TCP" ]; then
-    $(nmap $2 -oG archivo_temp &> /dev/null)
+    $(nmap $2 -sT -oG archivo_temp &> /dev/null)
   elif [ "$1" == "UDP" ]; then
     $(nmap $2 -sU -oG archivo_temp &> /dev/null)
   fi
