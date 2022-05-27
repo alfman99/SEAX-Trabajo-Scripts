@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Comprobamos si el ID del usuario no es igual a 0. Si no es igual a 0, le indicamos que debe ejecutar el script como root y salimos
+# del programa.
 comprobar_is_es_root() {
   if [ "$EUID" -ne 0 ]
   then echo "Porfavor ejecuta este script como root"
@@ -7,45 +9,38 @@ comprobar_is_es_root() {
   fi
 }
 
+# Función para hacer un exit() del programa
 die() {
   local code=${2-1} # default exit status 1
   exit "$code"
 }
 
+
+# Información del script
 usage() {
   cat <<EOF
-Usage: $(info_bash.sh "${BASH_SOURCE[0]}") [-h] [-t] integer arg1 [-i] string arg1
-Available options:
--h, --help      Print this help and exit
--t, --tiempo    Selecciona por cuantos segundos quieres escanear (por defecto: 30)
--i, --interfaces Indica para que interficie quiere hacer el análisis, si no se indica nada lo hará para todas.
+Usage: ./info_bash.sh [-h] [-t] integer arg1 [-i] string arg1
+Este script analiza los puntos de acceso y las terminales activas para las interficies red Wi-Fi conectadas al equipo.
+El script analizará por defecto durante 30 segundos todas las interficies Wi-Fi disponibles en la máquina.
+Se puede cambiar el tiempo de escaneo a los segundos que se desee, usando la comanda -t o --tiempo.
+Además, también se puede especificar para que interfície se quiere hacer el análisis. Es sumamente importante que el nombre de
+la interfície esté bien escrita, sinó el programa no funcionará ya que no detectará que existe dicha interfície.
+
+Durante la ejecución del script, como puede haber procesos que interfieran con el análisis de las redes, se hará matarán estos procesos.
+Esto puede provocar perdidas de conexión a la red. En todo caso, una vez el análisis se ha completado, el script reinicializará las
+interfícies existentes dejandolas en su estado anterior. 
+Por lo tanto, si está trabajando en una máquina remota no se preocupe en perder la conexión establecida. Es parte del proceso
+de análisis del script.
+
+Opciones permitidas:
+-h, --help      Saca el help y sale.
+-t, --tiempo    Selecciona por cuantos segundos quieres escanear (por defecto: 30).
+-i, --interfaces Indica para que interfície quiere hacer el análisis, si no se indica nada lo hará para todas.
 EOF
   die
 }
 
-# Parsear los parametros
-parse_params() {
-  # default values of variables set from params
-
-  while :; do
-    case "${1-}" in
-    -h | --help) usage ;;
-    -t | --tiempo) tiempo_escaneo="$2";;
-    -?*) die "Unknown option: $1" ;;
-    *) break ;;
-    esac
-    shift
-  done
-
-  args=("$@")
-
-  # check required params and arguments
-  [[ ${#args[@]} -eq -1 ]] && die "Missing script arguments"
-
-  return 0
-}
-
-# Check if program has all required packages
+# Checkeamos si el usuario tiene instalado todos los programas, si no le sacamos un mensaje de aviso por pantalla.
 comprobar_paquetes_necesarios() {
   programas_necesarios=("cat" "whoami" "airodump-ng" "grep" "cut" "printf" "echo" "iw" "aircrack-ng" "airmon-ng")
   programas_por_instalar=()
@@ -67,6 +62,7 @@ comprobar_paquetes_necesarios() {
   return
 }
 
+# Imprimimos una cantidad de lineas dependiendo de la longitud que se nos pase por el parámetro. 
 imprimir_n_lineas() {
     contador=1
     text_lineas=" "
@@ -76,11 +72,10 @@ imprimir_n_lineas() {
         ((contador++))
     done
     echo "$text_lineas"
-  # printf "\n"
 }
 
 
-# Imprimir al final, cuando tengamos todos los datos (fecha_final y hora_final)
+# Cabecera del script, aquí se puede modificar si queremos cambiar la cabecera. 
 print_header_start() {
   
     fecha_final="$(date '+%Y-%m-%d')" # fecha inicio del analisis
@@ -94,23 +89,40 @@ print_header_start() {
     imprimir_n_lineas "$maxima_anchura"
 }
 
+# En esta función, obtenemos los resultados del análisis hecho por airodump-ng. Es importante que las interficies esten en modo monitor
+# al entrar en dicha función.
 print_punts_access_detectats() {
-  # Header tabla
+    # Formatos del output
     txt_tabla="$(printf "%+18s %+6s %+7s %+9s %+10s %+7s %+9s %-29s" "BSSID" "Canal" "Senyal" "Clau" "Xifrat" "Auten." "Vmax" "ESSID" )"
     txt_tabla+="$(printf "\n %+18s %+6s %+7s %+9s %+10s %+7s %+9s %-29s" "-----------------" "-----" "------" "--------" "---------" "------" "--------" "----------------------------")"
     header_tabla="$(printf "%s." " Punts d'Accés detectats ($1 durant $tiempo_escaneo s)")"
     header_station="$(printf "%s." " Equips Terminals detectats ($1 durant $tiempo_escaneo s)")"
     txt_station="$(printf "%+18s %+7s %+8s %+18s %+13s" "MAC terminal" "Senyal" "Paquets" "BSSID" "ESSID")"
     txt_station+="$(printf "\n %+18s %+7s %+8s %+18s %+13s" "-----------------" "------" "-------" "-----------------" "------------")"
-    #Separamos los acces point con los stations
+    # Comprobamos si los archivos temporales que crearemos no existen.
+    file_csv_temp="archivoTemp_mk-01.csv"
+    if [ -f "$file_csv_temp" ] ; then
+        $(rm "$file_csv_temp")
+    fi
+    output_1="output1"
+    if [ -f "$output_1" ] ; then
+        $(rm "$output_1")
+    fi
+    output_2="output2"
+    if [ -f "$output_2" ] ; then
+        $(rm "$output_2")
+    fi
+    # Realizamos airodump-ng, escribiendo en el archivo archivoTemp_mk cada segundo, con duración que se nos haya especificado en el main.
     text="$(timeout --foreground $tiempo_escaneo airodump-ng $1 -w archivoTemp_mk --write-interval 1 -o csv)"
-    numero="$(awk '/Station/{ print NR; exit }' archivoTemp_mk-01.csv)"
+    # Para realizar de forma más sencilla los greps, separamos el archivo .csv obtenido en dos.
+    # Uno tendrá la parte de los puntos de acceso y otro el de los terminales conectados.
+    numero="$(awk '/Station/{ print NR; exit }' $file_csv_temp)"
     num1="$((numero-1))"
-    $(head -n $num1 archivoTemp_mk-01.csv > output1)
-    $(tail -n +$numero archivoTemp_mk-01.csv > output2)
+    $(head -n $num1 $file_csv_temp > $output_1)
+    $(tail -n +$numero $file_csv_temp > $output_2)
 
 
-    # Obtenemos las columnas
+    # Obtenemos las columnas de los puntos de acceso obtenidos.
     element="$(cat output1 | awk '{print $1};' | sed 's/,//' | sed '1d;2d;$d')"
     readarray -t list_bssid <<< "$element"
     element="$(cat output1 | awk -F ',' '{print $4}' | sed 's/,//' | sed '1d;2d;$d')"
@@ -127,6 +139,7 @@ print_punts_access_detectats() {
     readarray -t list_vmax <<< "$element"
     element="$(cat output1 | awk -F ',' '{print $14}' | sed 's/,//' | sed '1d;2d;$d')"
     readarray -t list_essid <<< "$element"
+    # Este for los preparamos para darles el formato que nos interesa y lo añadimos en un array de printf.
     for ((index=0; index < ${#list_bssid[@]}; index++)); do
         xifrat=${list_xifrat[index]} 
         if [ ${#xifrat} -ne 1 ]; then
@@ -153,6 +166,9 @@ print_punts_access_detectats() {
         txt_tabla+="$(printf "\n %+18s %+6s %+7s %+9s %+10s %+7s %+9s %-29s" "${list_bssid[index]}" "${list_canal[index]}" "$senyal" "${list_clau[index]}" "$xifrat" "$clau" "$vel" "${list_essid[index]}")"
     done
     txt_tabla+="$(printf "\n %+18s %+6s %+7s %+9s %+10s %+7s %+9s %-29s" "-----------------" "-----" "------" "--------" "---------" "------" "--------" "----------------------------")"
+    
+
+    # Obtenemos las columnas de los terminales.
     element="$(cat output2 | awk '{print $1};' | sed 's/,//' | sed '1d;$d')"
     readarray -t list_mac <<< "$element"
     element="$(cat output2 | awk -F ',' '{print $4}' | sed 's/,//' | sed '1d;$d')"
@@ -163,6 +179,7 @@ print_punts_access_detectats() {
     readarray -t list_bssid <<< "$element"
     element="$(cat output2 | awk -F ',' '{print $7}' |  sed 's/,//' |sed '1d;$d')"
     readarray -t list_essid <<< "$element"
+    # Este for los preparamos para darles el formato que nos interesa y lo añadimos en un array de printfo 
     for ((index=0; index < ${#list_mac[@]}; index++)); do
         senyal=${list_power[index]}
         if [ $senyal == "-1" ]; then
@@ -175,7 +192,7 @@ print_punts_access_detectats() {
     done
     txt_station+="$(printf "\n %+18s %+7s %+8s %+18s %+13s" "-----------------" "------" "-------" "-----------------" "------------")"
 
-
+    # Obtenemos el output total y lo sacamos con la comanda echo.
     maxima_anchura="$(echo "$txt_tabla" | wc -L)"
     echo -e "\n"
     imprimir_n_lineas "$maxima_anchura"
@@ -187,28 +204,33 @@ print_punts_access_detectats() {
     echo "$header_station"
     imprimir_n_lineas "$maxima_anchura"
     echo "$txt_station"
-    $(rm archivoTemp_mk-01.csv)
-    $(rm output1)
-    $(rm output2)
+
+    # Eliminamos los archivos temporales que hemos creado.
+    $(rm $file_csv_temp)
+    $(rm $output_1)
+    $(rm $output_2)
 }
 
 # Empieza "main"
 comprobar_is_es_root # Comprobamos el root 
 comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquetes necesarios para la ejecucion del programa
 
-
-version_script="0.0.2"
+# inicializamos valores que nos servirán para hacer el header
+version_script="1.1.0"
 fecha_version="20/05/2022"
-
 fecha_inicio="$(date '+%Y-%m-%d')" # fecha inicio del analisis
 hora_inicio="$(date '+%H:%M:%S')" # hora inicio del analisis
 
+# Creamos un archivo temporal que es donde guardaremos en un primer momento los output.
 fitxerOutputTmp="$(mktemp)"
+# Le asignamos permisos para poder escribir siendo root.
 $(chmod 700 "$fitxerOutputTmp")
+
+# Definimos valores por defecto. 
 tiempo_escaneo=30
 interfice_unica=""
 
-# Comrobamos interficies
+# Checkeamos si ha entrado algun parametro por la terminal.
 re='^[0-9]+$'
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
   $(usage())
@@ -242,13 +264,15 @@ elif [ "$3" == "-i" ] || [ "$3" == "--interfaces" ]; then
   interfice_unica="$4"
 fi
 
+
+# Creamos el archivo destino. Pero antes, lo eliminamos si existe.
 file="log_abast.txt"
 if [ -f "$file" ] ; then
     $(rm "$file")
 fi
 $(touch log_abast.txt)
 
-# Checkeamos si solo debemos hacerlo para una interficie
+# Checkeamos si solo debemos hacerlo para una interficie o para todas. Si es para todas, hacemos una lista de ellas.
 nombres_interfaces_wifi=()
 if [ -z "$interfice_unica" ]; then
   interfaces_wifi="$(iw dev | grep -w 'Interface' | awk '{print $2}' )"
@@ -257,41 +281,26 @@ else
   nombres_interfaces_wifi="$interfice_unica"
 fi
 
-# Scaneamos para las interficies dadas y antes de scanear, activamos el modo monitor. 
+# Scaneamos para las interficies dadas y antes de scanear, activamos el modo monitor (Si no está activado.). 
 # Eliminamos los procesos necesarios para poder activar el modo monitor.
 valor="$(airmon-ng check)"
-if [ -n "$valor" ]; then
-  printf "$valor"
-  echo -e "\n"   
-  echo "Hay procesos que interfieren, quieres eliminarlos? [S/N]"
-  read valor
-  resultado=0
-  while [ $resultado -ne 1 ]; do
-    if [ "$valor" == "S" ]; then
-      $(airmon-ng check kill &> /dev/null)
-      resultado=1
-    elif [ "$valor" == "N" ]; then
-      printf "Continue ejecutando bajo su propio riesgo\n"
-      resultado=1
-    elif [ "$valor" != "Y" ] && [ "$valor" != "N" ]; then
-      echo "Hay procesos que interfieren, quieres eliminarlos? [S/N]. Solo se acepta S o N. "
-      read valor
+if [ -n "$valor" ]; then   
+  echo "Hay procesos que interfieren, Se van a eliminar. Puede ser que pierda conexión a la red."
+  # Checkeamos que interficies estaban UP de antes, para cuando haya que eliminar un proceso poder reiniciarlas.
+  AllInterfaces="$(ip link show | awk '{ for (x=1;x<=NR;x+=2) if(FNR==x) print $2 }' | cut -d ":" -f1)"
+  mapfile -t  AllInterfaces <<< "$AllInterfaces"
+  InterfacesThatAreUp=()
+  for ((index=0; index < ${#AllInterfaces[@]}; index++)); do
+    estaUp="$(ip a show ${AllInterfaces[index]} up | wc -l)"
+    if [ "$estaUp" -ne 0 ]; then
+      InterfacesThatAreUp+=("${AllInterfaces[index]}")
     fi
   done
+  $(airmon-ng check kill &> /dev/null)
 fi
 
-# Checkeamos que interficies están up
-AllInterfaces="$(ip link show | awk '{ for (x=1;x<=NR;x+=2) if(FNR==x) print $2 }' | cut -d ":" -f1)"
-mapfile -t  AllInterfaces <<< "$AllInterfaces"
-InterfacesThatAreUp=()
-for ((index=0; index < ${#AllInterfaces[@]}; index++)); do
-  estaUp="$(ip a show ${AllInterfaces[index]} up | wc -l)"
-  if [ "$estaUp" -ne 0 ]; then
-    InterfacesThatAreUp+=("${AllInterfaces[index]}")
-  fi
-done
-
-
+# Para cada interficie wifi, activamos el modo monitor si no lo tiene activo y las análizamos. 
+# Luego lo desactivamos.
 for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     $(iwconfig "${nombres_interfaces_wifi[index]}" >> archivo_temp)
     res="$(cat archivo_temp | grep "${nombres_interfaces_wifi[index]}" | grep Monitor)"
@@ -310,12 +319,14 @@ for ((index=0; index < ${#nombres_interfaces_wifi[@]}; index++)); do
     fi
 done
 
+# En caso de tener que reiniciar redes, se reinician.
 printf "Reiniciando redes locales\n"
 for ((index=0; index < ${#InterfacesThatAreUp[@]}; index++)); do
   $(ifdown ${InterfacesThatAreUp[index]} &> /dev/null)
   $(ifup ${InterfacesThatAreUp[index]} &> /dev/null)
 done
 
+# OUTPUT
 $(echo $'\n Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.' >> $fitxerOutputTmp)
 $(print_header_start >> $file)
 $(cat $fitxerOutputTmp >> $file)
