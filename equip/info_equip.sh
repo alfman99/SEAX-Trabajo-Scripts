@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version_script="1.5.1"
+version_script="1.5.2"
 fecha_version="28/05/2022"
 nombre_fichero_output="log_equip.txt"
 
@@ -115,7 +115,7 @@ print_header_start() {
   maxima_anchura="$(echo "$text" | wc -L)"
 
   imprimir_n_lineas "$maxima_anchura"
-  echo "$text"
+  echo -e "$text"
   imprimir_n_lineas "$maxima_anchura"
 }
 
@@ -501,20 +501,29 @@ print_ports_actius() {
 
 print_nftables() {
 
-  value_info="\n$(nft list ruleset)"
+  value_info="$(nft list ruleset)"
+
+  text=""
+
+  if [ -n "$value" ]; then
+    while read line
+    do
+      text+="$(printf "\n %s" "$line")"
+    done < <(echo "$value_info")
+  fi
 
   # if nft list ruleset output is empty, then there are no rules
   if [ -z "$value_info" ]; then
-    value_info="No hi ha regles nftables"
+    text+="$(printf "\n%s" "  No n'hi ha cap regla")"
   fi
 
-  maxima_anchura="$(echo "$value_info" | wc -L)"
+  maxima_anchura="$(echo "$text" | wc -L)"
   header="$(printf "\n%s" " Informació NFTables")"
 
   imprimir_n_lineas "$maxima_anchura"
   echo "$header"
   imprimir_n_lineas "$maxima_anchura"
-  echo -e "$value_info"
+  echo "$text"
   imprimir_n_lineas "$maxima_anchura"
 
 }
