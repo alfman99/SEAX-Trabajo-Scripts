@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version_script="1.5.2"
+version_script="1.5.5"
 fecha_version="28/05/2022"
 nombre_fichero_output="log_equip.txt"
 
@@ -22,15 +22,23 @@ die() {
   exit "$code"
 }
 
+version () {
+  echo "Version: $version_script"
+  echo "Fecha: $fecha_version"
+
+  die
+}
+
 usage() {
   cat << EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-c] [-m]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-c] [-m]
 
 L’script de nivell de dispositiu analitza els usuaris, ports, connexions i taules NF del sistema. Treu tota l'informació a un fitxer: “$nombre_fichero_output”.
 
 Opciones disponibles:
 
 -h, --help      Imprime esta ayuda
+-v, --version   Imprime la versión y la fecha de la versión
 -c, --cpu       Nivell maxim de CPU a partir del qual volem que volem que ens avisin per usuari 
 -m, --mem       Nivell maxim de RAM a partir del qual volem que volem que ens avisin per usuari 
 -f, --file      Fitxer de sortida de la informació
@@ -46,6 +54,7 @@ parse_params() {
   while [[ $# -gt 0 ]]; do
     case $1 in
       -h | --help) usage ;;
+      -v | --version) version ;;
       -c | --cpu)
         cpu_threshold="$2"
         shift 2
