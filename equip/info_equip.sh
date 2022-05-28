@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version_script="1.5.5"
+version_script="1.5.6"
 fecha_version="28/05/2022"
 nombre_fichero_output="log_equip.txt"
 
@@ -83,7 +83,7 @@ parse_params() {
 
 # Check if program has all required packages
 comprobar_paquetes_necesarios() {
-  programas_necesarios=( "awk" "grep" "ps" "sysctl" "who" "ss" "bc" "printf" "echo" )
+  programas_necesarios=( "awk" "bc" "cat" "cut" "date" "echo" "getent" "grep" "head" "id" "lscpu" "nft" "printf" "ps" "sed" "sort" "ss" "sysctl" "top" "tr" "uniq" "wc" "who" "whoami" "xargs" )
   programas_por_instalar=()
 
   for program in "${programas_necesarios[@]}"
