@@ -1,11 +1,14 @@
 #!/bin/bash
 
-version_script="0.5.0"
-fecha_version="25/05/2022"
+version_script="1.5.0"
+fecha_version="28/05/2022"
 nombre_fichero_output="log_equip.txt"
 
 fecha_inicio=$(date '+%Y-%m-%d') # fecha inicio del analisis
 hora_inicio=$(date '+%H:%M:%S') # hora inicio del analisis
+
+cpu_threshold=20
+mem_threshold=20
 
 comprobar_is_es_root() {
   if [ "$EUID" -ne 0 ]
@@ -20,14 +23,17 @@ die() {
 }
 
 usage() {
-  cat << EOF # remove the space between << and EOF, this is due to web plugin issue
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
+  cat <<EOF
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-c] [-m]
 
-Script description here.
+L’script de nivell de dispositiu analitza els usuaris, ports, connexions i taules NF del sistema. Treu tota l'informació a un fitxer: “log_equip.txt”.
 
 Available options:
 
 -h, --help      Print this help and exit
+-c, --cpu       Minimum threshold of CPU usage so it warns you
+-m, --mem       Minimum threshold of memory usage so it warns you
+
 EOF
   die
 }
@@ -39,6 +45,16 @@ parse_params() {
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
+    -c | --cpu)
+      shift
+      cpu_threshold="${1-}"
+      shift
+      ;;
+    -m | --mem)
+      shift
+      mem_threshold="${1-}"
+      shift
+      ;;
     -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
@@ -55,7 +71,7 @@ parse_params() {
 
 # Check if program has all required packages
 comprobar_paquetes_necesarios() {
-  programas_necesarios=("cat" "whoami" "grep" "cut" "printf" "echo" "iw" "bc")
+  programas_necesarios=( "awk" "grep" "ps" "sysctl" "who" "ss" "bc" "printf" "echo" )
   programas_por_instalar=()
 
   for program in "${programas_necesarios[@]}"
@@ -389,24 +405,106 @@ print_ssh_config() {
 print_ports_actius() {
   header="$(printf "\n%s" " Ports actius detectats al sistema")"
   
+  text_tcp_listen="$(ss -H -ptnl)"
+  text="$(printf "  %-20s %-20s %-20s %-20s %-20s %-20s" "State" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
+  while read line
+  do
+    if [ -z "$line" ]; then
+      text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-" "-")"
+      break
+    fi
 
-  text="$(printf "\n Ports TCP en mode LISTEN\n%s" "$(ss -ptnl)")"
-  text+="$(printf "\n\n Ports UDP en mode LISTEN\n%s" "$(ss -punl)")"
-  text+="$(printf "\n\n Ports TCP amb connecxions establertes\n%s" "$(ss -ptne)")"
-  text+="$(printf "\n\n Ports UDP amb connecxions establertes\n%s" "$(ss -pune)")"
+    State="$(echo "$line" | awk '{print $1}')"
+    Recvq="$(echo "$line" | awk '{print $2}')"
+    Sendq="$(echo "$line" | awk '{print $3}')"
+    Local_Address_Port="$(echo "$line" | awk '{print $4}')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
+    Process="$(echo "$line" | cut -d' ' -f16-)"
 
-  maxima_anchura="$(echo "$text" | wc -L)"
+    text+="$(printf " %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
+  done < <(echo "$text_tcp_listen")
+  output_text="$(printf "\n Ports TCP en mode LISTEN\n%s" "$text")"
+
+
+  text_udp_listen="$(ss -H -punl)"
+  text="$(printf "  %-20s %-20s %-20s %-20s %-20s %-20s" "State" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
+  while read line
+  do
+    if [ -z "$line" ]; then
+      text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-" "-")"
+      break
+    fi
+
+    State="$(echo "$line" | awk '{print $1}')"
+    Recvq="$(echo "$line" | awk '{print $2}')"
+    Sendq="$(echo "$line" | awk '{print $3}')"
+    Local_Address_Port="$(echo "$line" | awk '{print $4}')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
+    Process="$(echo "$line" | cut -d' ' -f16-)"
+
+    text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
+  done < <(echo "$text_udp_listen")
+  output_text+="$(printf "\n\n Ports UDP en mode LISTEN\n%s" "$text")"
+
+
+  text_tcp_established="$(ss -H -ptne)"
+  text="$(printf "  %-20s %-20s %-20s %-20s %-20s %-20s" "State" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
+  while read line
+  do
+    if [ -z "$line" ]; then
+      text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-" "-")"
+      break
+    fi
+
+    State="$(echo "$line" | awk '{print $1}')"
+    Recvq="$(echo "$line" | awk '{print $2}')"
+    Sendq="$(echo "$line" | awk '{print $3}')"
+    Local_Address_Port="$(echo "$line" | awk '{print $4}')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
+    Process="$(echo "$line" | cut -d' ' -f16-)"
+
+    text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
+  done < <(echo "$text_tcp_established")
+  output_text+="$(printf "\n\n Ports TCP amb connecxions establertes\n%s" "$text")"
+
+
+  text_udp_established="$(ss -H -pune)"
+  text="$(printf "  %-20s %-20s %-20s %-20s %-20s" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
+  while read line
+  do
+    if [ -z "$line" ]; then
+      text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-")"
+      break
+    fi
+
+    Recvq="$(echo "$line" | awk '{print $1}')"
+    Sendq="$(echo "$line" | awk '{print $2}')"
+    Local_Address_Port="$(echo "$line" | awk '{print $3}')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $4}')"
+    Process="$(echo "$line" | cut -d' ' -f15-)"
+
+    text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
+  done < <(echo "$text_udp_established")
+  output_text+="$(printf "\n\n Ports UDP amb connecxions establertes\n%s" "$text")"
+
+  maxima_anchura="$(echo "$output_text" | wc -L)"
 
   imprimir_n_lineas "$maxima_anchura"
   echo "$header"
   imprimir_n_lineas "$maxima_anchura"
-  echo -e "$text"
+  echo -e "$output_text"
   imprimir_n_lineas "$maxima_anchura"
 }
 
 print_nftables() {
 
-  value_info="\n$(nft list ruleset | tr '\n' '\n')"
+  value_info="\n$(nft list ruleset)"
+
+  # if nft list ruleset output is empty, then there are no rules
+  if [ -z "$value_info" ]; then
+    value_info="No hi ha regles nftables"
+  fi
+
   maxima_anchura="$(echo "$value_info" | wc -L)"
   header="$(printf "\n%s" " Informació NFTables")"
 
@@ -422,10 +520,6 @@ print_nftables() {
 comprobar_is_es_root
 parse_params "$@" # Parsea los parametros introducidos
 comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquetes necesarios para la ejecucion del programa
-
-
-
-
 
 {
   print_usuarios_activos
