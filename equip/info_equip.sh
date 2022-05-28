@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version_script="1.5.0"
+version_script="1.5.1"
 fecha_version="28/05/2022"
 nombre_fichero_output="log_equip.txt"
 
@@ -23,18 +23,19 @@ die() {
 }
 
 usage() {
-  cat <<EOF
+  cat << EOF
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-c] [-m]
 
-L’script de nivell de dispositiu analitza els usuaris, ports, connexions i taules NF del sistema. Treu tota l'informació a un fitxer: “log_equip.txt”.
+L’script de nivell de dispositiu analitza els usuaris, ports, connexions i taules NF del sistema. Treu tota l'informació a un fitxer: “$nombre_fichero_output”.
 
-Available options:
+Opciones disponibles:
 
--h, --help      Print this help and exit
--c, --cpu       Minimum threshold of CPU usage so it warns you
--m, --mem       Minimum threshold of memory usage so it warns you
-
+-h, --help      Imprime esta ayuda
+-c, --cpu       Nivell maxim de CPU a partir del qual volem que volem que ens avisin per usuari 
+-m, --mem       Nivell maxim de RAM a partir del qual volem que volem que ens avisin per usuari 
+-f, --file      Fitxer de sortida de la informació
 EOF
+
   die
 }
 
@@ -42,29 +43,31 @@ EOF
 parse_params() {
   # default values of variables set from params
 
-  while :; do
-    case "${1-}" in
-    -h | --help) usage ;;
-    -c | --cpu)
-      shift
-      cpu_threshold="${1-}"
-      shift
-      ;;
-    -m | --mem)
-      shift
-      mem_threshold="${1-}"
-      shift
-      ;;
-    -?*) die "Unknown option: $1" ;;
-    *) break ;;
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -h | --help) usage ;;
+      -c | --cpu)
+        cpu_threshold="$2"
+        shift 2
+        ;;
+      -m | --mem)
+        mem_threshold="$2"
+        shift 2
+        ;;
+      -f | --file)
+        nombre_fichero_output="$2"
+        shift 2
+        ;;
+      -?*) die "Unknown option: $1" ;;
+      --)
+        shift;
+        break
+        ;;
+      *) break ;;
     esac
-    shift
   done
 
-  args=("$@")
-
-  # check required params and arguments
-  [[ ${#args[@]} -eq -1 ]] && die "Missing script arguments"
+  shift $((OPTIND-1))
 
   return 0
 }
@@ -244,8 +247,8 @@ print_usuarios_activos() {
   echo "$text"
   print_usuarios_conectados_sistema
   print_usuarios_conexiones_activas
-  print_uso_mas_cpu 5
-  print_uso_mas_memoria 5
+  print_uso_mas_cpu "$cpu_threshold"
+  print_uso_mas_memoria "$mem_threshold"
   echo -e "\n"
   print_ssh_config
   echo -e "\n"
