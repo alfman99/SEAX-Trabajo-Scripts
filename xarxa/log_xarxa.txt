@@ -1,14 +1,14 @@
  ---------------------------------------------------------------------------------------------------
  Anàlisi dels serveis de la xarxa local realitzada per l'usuari root de l'equip seax.epsevg.upc.edu.
  Sistema operatiu Debian GNU/Linux 11 (bullseye).
- Versió del script 1.0.0 compilada el 25/05/2022.
- Anàlisi iniciada en data 2022-05-25 a les 23:51:29 i finalitzada en data 2022-05-25 a les 23:53:57.
+ Versió del script 2.2.0 compilada el 31/05/2022.
+ Anàlisi iniciada en data 2022-05-30 a les 16:27:11 i finalitzada en data 2022-05-30 a les 16:28:45.
  ---------------------------------------------------------------------------------------------------
 
 
  --------------------------------------------------------------------------
  Anàlisi de Serveis UDP de la xarxa local (10.0.2.0/24).
- S'han detectat 11 serveis i 4 equips a la xarxa local.
+ S'han detectat 12 serveis i 4 equips a la xarxa local.
  --------------------------------------------------------------------------
         Port Servei             Num @IP
     138(udp) netbios-dgm        [1] 10.0.2.15
@@ -19,22 +19,23 @@
    4500(udp) nat-t-ike          [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
      68(udp) dhcpc              [1] 10.0.2.15
      69(udp) tftp               [1] 10.0.2.4
-   5050(udp) mmcc               [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+   5050(udp) mmcc               [2] 10.0.2.2, 10.0.2.3
    5353(udp) zeroconf           [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
+    500(udp) isakmp             [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
    5355(udp) llmnr              [3] 10.0.2.2, 10.0.2.3, 10.0.2.4
  --------------------------------------------------------------------------
 
 
- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  Anàlisi de Serveis UDP de la xarxa local (10.0.2.0/24).
- S'han detectat 4 equips i 11 serveix a la xarxa local.
- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ S'han detectat 4 equips i 12 serveix a la xarxa local.
+ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  @IP          Num Serveis
  10.0.2.15    [3] 68(udp) dhcpc, 137(udp) netbios-ns, 138(udp) netbios-dgm
- 10.0.2.2     [8] 67(udp) dhcps, 137(udp) netbios-ns, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
- 10.0.2.3     [8] 67(udp) dhcps, 137(udp) netbios-ns, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
- 10.0.2.4     [9] 67(udp) dhcps, 69(udp) tftp, 137(udp) netbios-ns, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 10.0.2.2     [9] 67(udp) dhcps, 137(udp) netbios-ns, 500(udp) isakmp, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
+ 10.0.2.3     [9] 67(udp) dhcps, 137(udp) netbios-ns, 500(udp) isakmp, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5050(udp) mmcc, 5353(udp) zeroconf, 5355(udp) llmnr
+ 10.0.2.4     [9] 67(udp) dhcps, 69(udp) tftp, 137(udp) netbios-ns, 500(udp) isakmp, 1900(udp) upnp, 3702(udp) ws-discovery, 4500(udp) nat-t-ike, 5353(udp) zeroconf, 5355(udp) llmnr
+ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
  --------------------------------------------------------------------------

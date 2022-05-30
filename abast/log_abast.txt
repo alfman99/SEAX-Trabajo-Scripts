@@ -1,8 +1,8 @@
  -----------------------------------------------------------------------------------------------------
  Identificació de dispositius i xarxes WIFI per l'usuari root de l'equip seax.epsevg.upc.edu.
  Sistema operatiu Debian GNU/Linux 11 (bullseye).
- Versió del script 0.0.2 compilada el 20/05/2022.
- Anàlisi iniciada en data 2022-05-26 a les 00:07:17  i finalitzada en data 2022-05-26 a les 00:07:50.)
+ Versió del script 2.1.0 compilada el 31/05/2022.
+ Anàlisi iniciada en data 2022-05-30 a les 16:55:57  i finalitzada en data 2022-05-30 a les 16:56:28.)
  -----------------------------------------------------------------------------------------------------
 
 
@@ -11,14 +11,16 @@
  ------------------------------------------------------------------------------------------------------
              BSSID  Canal  Senyal      Clau     Xifrat  Auten.      Vmax ESSID                        
   -----------------  -----  ------  --------  ---------  ------  -------- ---------------------------- 
-  30:23:03:9A:B1:96      7  -72dbm      WPA2       CCMP    WPA2   360Mbps  Onder de linden             
-  C0:C9:E3:B3:56:D6      1  -72dbm      WPA2       CCMP    WPA2   270Mbps  Mario                       
-  D4:7B:B0:E9:B9:68      6  -72dbm      WPA2       CCMP    WPA2   130Mbps  MOVISTAR_B967               
-  36:23:03:9A:B1:96      7  -70dbm      WPA2       CCMP    WPA2   360Mbps                              
-  C8:F5:D6:94:D8:71      1  -70dbm      WPA2       CCMP    WPA2   130Mbps                              
-  70:4F:57:A0:49:0A      7  -68dbm      WPA2  CCMP/TKIP    WPA2   195Mbps  Camera                      
-  30:B1:B5:06:CC:1C     11  -33dbm      WPA2       CCMP    WPA2   130Mbps  MiFibra-CC1A                
-  08:6A:0A:73:69:04      8   ~ dbm                                 ~ Mbps                              
+  08:6A:0A:73:69:04     14   -1dbm                                 -1Mbps                              
+  30:23:03:9A:B1:96      7  -73dbm      WPA2       CCMP     PSK   360Mbps  Onder de linden             
+  36:23:03:9A:B1:96      7  -71dbm      WPA2       CCMP     PSK   360Mbps                              
+  36:23:03:9A:B8:3A      4  -70dbm      WPA2       CCMP     PSK   360Mbps                              
+  30:23:03:9A:B8:3A      4  -70dbm      WPA2       CCMP     PSK   360Mbps  Onder de linden             
+  C0:C9:E3:B3:56:D6      1  -69dbm      WPA2       CCMP     PSK   270Mbps  Mario                       
+  C8:F5:D6:94:D8:71      1  -67dbm      WPA2       CCMP     PSK   130Mbps                              
+  70:4F:57:A0:49:0A      7  -67dbm      WPA2  CCMP/TKIP     PSK   195Mbps  Camera                      
+  30:B1:B5:06:CC:1C     11  -28dbm      WPA2       CCMP     PSK   130Mbps  MiFibra-CC1A                
+  00:00:00:00:00:00      4   -1dbm      WPA2       CCMP     PSK   360Mbps                              
   -----------------  -----  ------  --------  ---------  ------  -------- ---------------------------- 
 
 
@@ -27,8 +29,9 @@
  ------------------------------------------------------------------------------------------------------
       MAC terminal  Senyal  Paquets              BSSID         ESSID
   -----------------  ------  -------  -----------------  ------------
-  94:27:90:7E:BD:0B  -62dbm       13  30:B1:B5:06:CC:1C             
-  14:C1:4E:2A:FE:F6   ~ dbm        1  C0:C9:E3:B3:56:D6             
+  3A:23:03:9A:B8:3A  -71dbm        8  00:00:00:00:00:00             
+  80:58:F8:51:6C:56  -63dbm        1  30:B1:B5:06:CC:1C             
+  12:16:53:3B:9C:16  -44dbm       65  30:B1:B5:06:CC:1C             
   -----------------  ------  -------  -----------------  ------------
 
- Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.
+Nota: El valor ~ indica que el paràmetre no és por deduir dels paquets capturats.
