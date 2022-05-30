@@ -35,7 +35,7 @@ Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-c] [-m]
 
 L’script de nivell de dispositiu analitza els usuaris, ports, connexions i taules NF del sistema. Treu tota l'informació a un fitxer: “$nombre_fichero_output”.
 
-Opciones disponibles:
+Opcions disponibles:
 
 -h, --help      Imprime esta ayuda
 -v, --version   Imprime la versión y la fecha de la versión
