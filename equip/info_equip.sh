@@ -37,7 +37,7 @@ usage() {
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-c] [-m]
 
 El script de nivel de dispositivo analiza los usuarios, puertos, conexiones y tablas NF del sistema.
-Saca toda la información al archivo: "$número_fichero_output".
+Saca toda la información al archivo: "$numero_fichero_output"
 
 Opciones disponibles:
 
