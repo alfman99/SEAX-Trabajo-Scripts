@@ -37,7 +37,7 @@ usage() {
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-c] [-m]
 
 El script de nivel de dispositivo analiza los usuarios, puertos, conexiones y tablas NF del sistema.
-Saca toda la información al archivo: "$numero_fichero_output"
+Saca toda la información al archivo: log_equip.txt
 
 Opcions disponibles:
 
@@ -71,11 +71,11 @@ parse_params() {
         nombre_fichero_output="$2"
         shift 2
         ;;
-      -?*) die "Unknown option: $1" ;;
       --)
         shift;
         break
         ;;
+       -?*) die "Unknown option: $1" ;;
       *) break ;;
     esac
   done
@@ -145,7 +145,7 @@ print_usuarios_conectados_sistema() {
 
   data_who=$(who)
 
-  while read usuario
+  while read -r usuario
   do
     text+="$(printf "\n          %s" "$usuario" )"
   done < <(echo "$data_who")
@@ -157,8 +157,6 @@ print_usuarios_conectados_sistema() {
 # Recolecta información y muestra los usuarios que tienen conexiones activas de cualquier tipo.
 print_usuarios_conexiones_activas() {
 
-  format="\n          %-15s%-26s%-12s%-26s%-17s"
-
   datos_socket="$(ss -ptun)"
   datos_procesos="$(ps -aux)" # la buena
 
@@ -167,7 +165,7 @@ print_usuarios_conexiones_activas() {
   lista_usuarios=""
 
   i=1
-  while read usuario
+  while read -r usuario
   do
     # if i == 1 next iteration and increment i, sirve para que no se imprima el header de la tabla
     if [ "$i" -eq 1 ]; then
@@ -191,14 +189,14 @@ print_usuarios_conexiones_activas() {
 
     lista_usuarios+=" $usuario"
 
-    datos+="$(printf "$format" "$usuario" "($local_addr" "<->" "$remote_addr" "$pid/$usuario@$terminal")"
+    datos+="$(printf "\n          %-15s%-26s%-12s%-26s%-17s" "$usuario" "($local_addr" "<->" "$remote_addr" "$pid/$usuario@$terminal")"
 
   done < <(echo "$datos_socket")
 
   lista_usuarios="$(echo "$lista_usuarios" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 
   text="$(printf "\n%-33s%s%s" "  Usuaris amb conexions actives:" "$(echo "$lista_usuarios" | xargs | tr ' ' '\n' | wc -l) -" "$lista_usuarios")"
-  text+="$(printf "$format" "Usuari" "(@IP:Port" "<->" "@IP:Port" "Procés:Usuari)")"
+  text+="$(printf "\n          %-15s%-26s%-12s%-26s%-17s" "Usuari" "(@IP:Port" "<->" "@IP:Port" "Procés:Usuari)")"
   text+="$datos"
 
   text=$(echo "$text" | uniq)  
@@ -213,7 +211,7 @@ print_usuarios_activos() {
   
   texto2=""
   users_with_shell="$(grep -Ff /etc/shells /etc/passwd | cut -d: -f1)"
-  while read usuario
+  while read -r usuario
   do
     texto2+="$(printf "%s, " "$usuario")"
   done < <(echo "$users_with_shell")
@@ -221,7 +219,7 @@ print_usuarios_activos() {
   texto3=""
   users_with_uid_0="$(getent passwd 0 | cut -d: -f1)"
 
-  while read usuario
+  while read -r usuario
   do
     texto3+="$(printf "%s, " "$(echo "$usuario" | awk '{print $1}')") "
   done < <(echo "$users_with_uid_0")
@@ -231,7 +229,7 @@ print_usuarios_activos() {
   texto4=""
   usuarios_ps="$(ps -aux | awk '{print $1}' | sed '1 d' | sort | uniq)"
 
-  while read line
+  while read -r line
   do
     num_procesos="$(ps -U "$line" --no-headers 2>/dev/null | wc -l)"
     texto4+="$(printf "%s[%s], " "$line" "$num_procesos")"
@@ -239,8 +237,8 @@ print_usuarios_activos() {
 
   # Usuarios del sistema junto con su UID y PID
   texto5=""
-  users="$(cat "/etc/passwd" | tr ':' ' ' | awk '{print $1 " " $3}')"
-  while read line
+  users="$(< "/etc/passwd" tr ':' ' ' | awk '{print $1 " " $3}')"
+  while read -r line
   do
     usuario="$(echo "$line" | cut -d' ' -f1)"
     id="$(echo "$line" | cut -d' ' -f2)"
@@ -280,7 +278,7 @@ print_uso_mas_cpu() {
   users_active="$(who)"
 
   vacio=0
-  while read line
+  while read -r line
   do
     usuario="$(echo "$line" | awk '{print $1}')"
     cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
@@ -289,7 +287,7 @@ print_uso_mas_cpu() {
     procesamiento_total="0"
 
     i=1
-    while read line
+    while read -r line
     do
       if [ "$i" -eq 1 ]; then # saltar la primera linea
         ((i++))
@@ -338,7 +336,7 @@ print_uso_mas_memoria() {
   users_active="$(who)"
 
   vacio=0
-  while read line
+  while read -r line
   do
     usuario="$(echo "$line" | awk '{print $1}')"
     cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
@@ -347,7 +345,7 @@ print_uso_mas_memoria() {
     procesamiento_total="0"
 
     i=1
-    while read line
+    while read -r line
     do
       if [ "$i" -eq 1 ]; then # saltar la primera linea
         ((i++))
@@ -408,7 +406,7 @@ print_ssh_config() {
       # No existe el valor, por lo que está por defecto el servidor 
       users_allowed="Valor commentat"
     else
-      users_allowed="$(echo "$users_allowed")"
+      users_allowed="$(printf "%s" "$users_allowed")"
     fi
 
     text+="$(printf "\n  %-17s %s" " SSH Usuaris permesos:" "$users_allowed")"
@@ -429,7 +427,7 @@ print_ports_actius() {
   
   text_tcp_listen="$(ss -H -ptnl)"
   text="$(printf "  %-20s %-20s %-20s %-20s %-20s %-20s" "State" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
-  while read line
+  while read -r line
   do
     if [ -z "$line" ]; then
       text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-" "-")"
@@ -443,14 +441,14 @@ print_ports_actius() {
     Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
     Process="$(echo "$line" | cut -d' ' -f16-)"
 
-    text+="$(printf " %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
+    text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
   done < <(echo "$text_tcp_listen")
   output_text="$(printf "\n Ports TCP en mode LISTEN\n%s" "$text")"
 
 
   text_udp_listen="$(ss -H -punl)"
   text="$(printf "  %-20s %-20s %-20s %-20s %-20s %-20s" "State" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
-  while read line
+  while read -r line
   do
     if [ -z "$line" ]; then
       text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-" "-")"
@@ -471,7 +469,7 @@ print_ports_actius() {
 
   text_tcp_established="$(ss -H -ptne)"
   text="$(printf "  %-20s %-20s %-20s %-20s %-20s %-20s" "State" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
-  while read line
+  while read -r line
   do
     if [ -z "$line" ]; then
       text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-" "-")"
@@ -492,7 +490,7 @@ print_ports_actius() {
 
   text_udp_established="$(ss -H -pune)"
   text="$(printf "  %-20s %-20s %-20s %-20s %-20s" "Recv-Q" "Send-Q" "Local Address:Port" "Peer Address:Port" "Process")"
-  while read line
+  while read -r line
   do
     if [ -z "$line" ]; then
       text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s" "-" "-" "-" "-" "-")"
@@ -525,7 +523,7 @@ print_nftables() {
   text=""
 
   if [ -n "$value" ]; then
-    while read line
+    while read -r line
     do
       text+="$(printf "\n %s" "$line")"
     done < <(echo "$value_info")
