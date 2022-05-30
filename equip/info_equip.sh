@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version_script="1.5.6"
-fecha_version="28/05/2022"
+version_script="1.5.7"
+fecha_version="30/05/2022"
 nombre_fichero_output="log_equip.txt"
 
 fecha_inicio=$(date '+%Y-%m-%d') # fecha inicio del analisis
@@ -10,6 +10,7 @@ hora_inicio=$(date '+%H:%M:%S') # hora inicio del analisis
 cpu_threshold=20
 mem_threshold=20
 
+# Funcion que comprueba que quien está ejecutando el programa tenga privilegios de superusuario
 comprobar_is_es_root() {
   if [ "$EUID" -ne 0 ]
   then echo "Porfavor ejecuta este script como root"
@@ -17,11 +18,13 @@ comprobar_is_es_root() {
   fi
 }
 
+# Función para cerrar el programa con un codigo númerico.
 die() {
   local code=${2-1} # default exit status 1
   exit "$code"
 }
 
+# Imprime la versión y el día
 version () {
   echo "Version: $version_script"
   echo "Fecha: $fecha_version"
@@ -33,7 +36,8 @@ usage() {
   cat << EOF
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-c] [-m]
 
-L’script de nivell de dispositiu analitza els usuaris, ports, connexions i taules NF del sistema. Treu tota l'informació a un fitxer: “$nombre_fichero_output”.
+El script de nivel de dispositivo analiza los usuarios, puertos, conexiones y tablas NF del sistema.
+Saca toda la información al archivo: "$número_fichero_output".
 
 Opciones disponibles:
 
@@ -81,7 +85,7 @@ parse_params() {
   return 0
 }
 
-# Check if program has all required packages
+# Comprueba que el sistema tenga todos los programas necesarios para funcionar
 comprobar_paquetes_necesarios() {
   programas_necesarios=( "awk" "bc" "cat" "cut" "date" "echo" "getent" "grep" "head" "id" "lscpu" "nft" "printf" "ps" "sed" "sort" "ss" "sysctl" "top" "tr" "uniq" "wc" "who" "whoami" "xargs" )
   programas_por_instalar=()
@@ -114,7 +118,7 @@ imprimir_n_lineas() {
 }
 
 
-# Imprimir al final, cuando tengamos todos los datos (fecha_final y hora_final)
+# Imprimir al header de arriba del todo. Se imprime al final, cuando tengamos todos los datos (fecha_final y hora_final) y se hace un append al fichero final
 print_header_start() {
   fecha_final="$(date '+%Y-%m-%d')"
   hora_final="$(date '+%H:%M:%S')"
@@ -128,7 +132,7 @@ print_header_start() {
   imprimir_n_lineas "$maxima_anchura"
 }
 
-# Hecho
+# Recolecta información y muestra los datos de que usuarios hay conectados al sistema y en caso de estar conectados remotamente la IP.
 print_usuarios_conectados_sistema() {
 
   usuarios_activos=$(who | cut -d" " -f1 | tr '\n' ' ')
@@ -150,6 +154,7 @@ print_usuarios_conectados_sistema() {
 
 }
 
+# Recolecta información y muestra los usuarios que tienen conexiones activas de cualquier tipo.
 print_usuarios_conexiones_activas() {
 
   format="\n          %-15s%-26s%-12s%-26s%-17s"
@@ -196,14 +201,12 @@ print_usuarios_conexiones_activas() {
   text+="$(printf "$format" "Usuari" "(@IP:Port" "<->" "@IP:Port" "Procés:Usuari)")"
   text+="$datos"
 
-  text=$(echo "$text" | uniq)
-
-  
+  text=$(echo "$text" | uniq)  
   echo "$text"
-
 
 }
 
+# Recolecta información y muestra los usuarios que están activos ahora mismo.
 print_usuarios_activos() {
   
   texto1="$(whoami)($(id -u)) [pts/$(id -u)]"
@@ -265,6 +268,7 @@ print_usuarios_activos() {
 
 }
 
+# Recolecta información y muestra los usuarios que tienen un uso de CPU superior a un % determinado.
 print_uso_mas_cpu() {
 
   porcentaje="$1"
@@ -321,6 +325,8 @@ print_uso_mas_cpu() {
 
 }
 
+
+# Recolecta información y muestra los usuarios que tienen un uso de memoria superior a un % determinado.
 print_uso_mas_memoria() {
   
   porcentaje="$1"
@@ -379,6 +385,9 @@ print_uso_mas_memoria() {
 
 }
 
+
+# Recolección de información del servidor SSH en la máquina
+# En caso de no tener servidor SSH se indica también.
 print_ssh_config() {
 
   if [ -f "/etc/ssh/sshd_config" ]; then
@@ -414,6 +423,7 @@ print_ssh_config() {
 
 }
 
+# Busca informacion sobre puertos activos en el sistema y lo muestra 
 print_ports_actius() {
   header="$(printf "\n%s" " Ports actius detectats al sistema")"
   
@@ -537,7 +547,7 @@ print_nftables() {
 
 }
 
-# Empieza "main"
+# Empieza main 
 comprobar_is_es_root
 parse_params "$@" # Parsea los parametros introducidos
 comprobar_paquetes_necesarios # Comprueba que estén instalados todos los paquetes necesarios para la ejecucion del programa
