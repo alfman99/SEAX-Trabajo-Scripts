@@ -1,0 +1,81 @@
+ 
+ ---------------------------------------------------------------------------------------------------
+ Anàlisi dels serveis de la xarxa local realitzada per l'usuari root de l'equip debian11.
+ Sistema operatiu Debian GNU/Linux 11 (bullseye).
+ Versió del script 0.113 compilada el 07/02/2022.
+ Anàlisi iniciada en data 2022-03-07 a les 12:58:20 i finalitzada en data 2022-03-07 a les 12:58:59.
+ ---------------------------------------------------------------------------------------------------
+ 
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (10.1.1.0/24.).
+ S'han detectat 31 serveis i 27 equips a la xarxa local.
+ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
+       Port Servei             Num @IP
+    21(tcp) ftp                [1] 10.1.1.1
+    22(tcp) ssh                [5] 10.1.1.1, 10.1.1.115, 10.1.1.137, 10.1.1.138, 10.1.1.181
+    23(tcp) telnet             [2] 10.1.1.1, 10.1.1.42
+    53(tcp) domain             [5] 10.1.1.1, 10.1.1.2, 10.1.1.3, 10.1.1.118, 10.1.1.120
+    80(tcp) http               [11] 10.1.1.1, 10.1.1.2, 10.1.1.3, 10.1.1.32, 10.1.1.33, 10.1.1.39, 10.1.1.42, 10.1.1.102, 10.1.1.119, 10.1.1.121, 10.1.1.172
+   111(tcp) rpcbind            [1] 10.1.1.42
+   135(tcp) msrpc              [1] 10.1.1.11
+   139(tcp) netbios-ssn        [5] 10.1.1.2, 10.1.1.3, 10.1.1.11, 10.1.1.32, 10.1.1.33
+   443(tcp) https              [5] 10.1.1.2, 10.1.1.3, 10.1.1.32, 10.1.1.33, 10.1.1.39
+   445(tcp) microsoft-ds       [5] 10.1.1.2, 10.1.1.3, 10.1.1.11, 10.1.1.32, 10.1.1.33
+   515(tcp) printer            [1] 10.1.1.39
+   548(tcp) afp                [1] 10.1.1.33
+   631(tcp) ipp                [1] 10.1.1.39
+  1080(tcp) socks              [4] 10.1.1.101, 10.1.1.113, 10.1.1.116, 10.1.1.176
+  2000(tcp) cisco-sccp         [1] 10.1.1.1
+  3261(tcp) winshadow          [2] 10.1.1.32, 10.1.1.33
+  5000(tcp) upnp               [8] 10.1.1.32, 10.1.1.33, 10.1.1.43, 10.1.1.44, 10.1.1.45, 10.1.1.46, 10.1.1.118, 10.1.1.120
+  5001(tcp) commplex-link      [2] 10.1.1.32, 10.1.1.33
+  5003(tcp) filemaker          [2] 10.1.1.2, 10.1.1.3
+  5357(tcp) wsdapi             [3] 10.1.1.11, 10.1.1.32, 10.1.1.33
+  7000(tcp) afs3-fileserver    [6] 10.1.1.43, 10.1.1.44, 10.1.1.45, 10.1.1.46, 10.1.1.118, 10.1.1.120
+  7100(tcp) font-service       [6] 10.1.1.43, 10.1.1.44, 10.1.1.45, 10.1.1.46, 10.1.1.118, 10.1.1.120
+  8080(tcp) http-proxy         [6] 10.1.1.2, 10.1.1.3, 10.1.1.39, 10.1.1.42, 10.1.1.119, 10.1.1.121
+  8291(tcp) unknown            [2] 10.1.1.1, 10.1.1.39
+  8888(tcp) sun-answerbook     [4] 10.1.1.101, 10.1.1.113, 10.1.1.116, 10.1.1.176
+  9100(tcp) jetdirect          [1] 10.1.1.39
+ 10000(tcp) snet-sensor-mgmt   [2] 10.1.1.2, 10.1.1.3
+ 12345(tcp) netbus             [2] 10.1.1.119, 10.1.1.121
+ 49152(tcp) unknown            [8] 10.1.1.2, 10.1.1.3, 10.1.1.43, 10.1.1.44, 10.1.1.45, 10.1.1.46, 10.1.1.118, 10.1.1.120
+ 49153(tcp) unknown            [1] 10.1.1.43
+ 62078(tcp) iphone-sync        [7] 10.1.1.43, 10.1.1.44, 10.1.1.45, 10.1.1.46, 10.1.1.110, 10.1.1.118, 10.1.1.120
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Anàlisi de Serveis TCP de la xarxa local (10.1.1.0/24).
+ S'han detectat 27 equips i 31 serveis a la xarxa local.
+ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ @IP          Num Serveis
+ 10.1.1.1     [7] 21(tcp) ftp, 22(tcp) ssh, 23(tcp) telnet, 53(tcp) domain, 80(tcp) http, 2000(tcp) cisco-sccp, 8291(tcp) unknown
+ 10.1.1.101   [2] 1080(tcp) socks, 8888(tcp) sun-answerbook
+ 10.1.1.102   [1] 80(tcp) http
+ 10.1.1.11    [4] 135(tcp) msrpc, 139(tcp) netbios-ssn, 445(tcp) microsoft-ds, 5357(tcp) wsdapi
+ 10.1.1.110   [1] 62078(tcp) iphone-sync
+ 10.1.1.113   [2] 1080(tcp) socks, 8888(tcp) sun-answerbook
+ 10.1.1.115   [1] 22(tcp) ssh
+ 10.1.1.116   [2] 1080(tcp) socks, 8888(tcp) sun-answerbook
+ 10.1.1.118   [6] 53(tcp) domain, 5000(tcp) upnp, 7000(tcp) afs3-fileserver, 7100(tcp) font-service, 49152(tcp) unknown, 62078(tcp) iphone-sync
+ 10.1.1.119   [3] 80(tcp) http, 8080(tcp) http-proxy, 12345(tcp) netbus
+ 10.1.1.120   [6] 53(tcp) domain, 5000(tcp) upnp, 7000(tcp) afs3-fileserver, 7100(tcp) font-service, 49152(tcp) unknown, 62078(tcp) iphone-sync
+ 10.1.1.121   [3] 80(tcp) http, 8080(tcp) http-proxy, 12345(tcp) netbus
+ 10.1.1.137   [1] 22(tcp) ssh
+ 10.1.1.138   [1] 22(tcp) ssh
+ 10.1.1.172   [1] 80(tcp) http
+ 10.1.1.176   [2] 1080(tcp) socks, 8888(tcp) sun-answerbook
+ 10.1.1.181   [1] 22(tcp) ssh
+ 10.1.1.2     [9] 53(tcp) domain, 80(tcp) http, 139(tcp) netbios-ssn, 443(tcp) https, 445(tcp) microsoft-ds, 5003(tcp) filemaker, 8080(tcp) http-proxy, 10000(tcp) snet-sensor-mgmt, 49152(tcp) unknown
+ 10.1.1.3     [9] 53(tcp) domain, 80(tcp) http, 139(tcp) netbios-ssn, 443(tcp) https, 445(tcp) microsoft-ds, 5003(tcp) filemaker, 8080(tcp) http-proxy, 10000(tcp) snet-sensor-mgmt, 49152(tcp) unknown
+ 10.1.1.32    [8] 80(tcp) http, 139(tcp) netbios-ssn, 443(tcp) https, 445(tcp) microsoft-ds, 3261(tcp) winshadow, 5000(tcp) upnp, 5001(tcp) commplex-link, 5357(tcp) wsdapi
+ 10.1.1.33    [9] 80(tcp) http, 139(tcp) netbios-ssn, 443(tcp) https, 445(tcp) microsoft-ds, 548(tcp) afp, 3261(tcp) winshadow, 5000(tcp) upnp, 5001(tcp) commplex-link, 5357(tcp) wsdapi
+ 10.1.1.39    [7] 80(tcp) http, 443(tcp) https, 515(tcp) printer, 631(tcp) ipp, 8080(tcp) http-proxy, 8291(tcp) unknown, 9100(tcp) jetdirect
+ 10.1.1.42    [4] 23(tcp) telnet, 80(tcp) http, 111(tcp) rpcbind, 8080(tcp) http-proxy
+ 10.1.1.43    [6] 5000(tcp) upnp, 7000(tcp) afs3-fileserver, 7100(tcp) font-service, 49152(tcp) unknown, 49153(tcp) unknown, 62078(tcp) iphone-sync
+ 10.1.1.44    [5] 5000(tcp) upnp, 7000(tcp) afs3-fileserver, 7100(tcp) font-service, 49152(tcp) unknown, 62078(tcp) iphone-sync
+ 10.1.1.45    [5] 5000(tcp) upnp, 7000(tcp) afs3-fileserver, 7100(tcp) font-service, 49152(tcp) unknown, 62078(tcp) iphone-sync
+ 10.1.1.46    [5] 5000(tcp) upnp, 7000(tcp) afs3-fileserver, 7100(tcp) font-service, 49152(tcp) unknown, 62078(tcp) iphone-sync
+ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
