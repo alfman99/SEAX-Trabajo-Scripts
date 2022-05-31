@@ -411,7 +411,7 @@ print_ssh_config() {
       value_info="$(echo "$value_info" | cut -d' ' -f2)"
     fi
     
-    text="$(printf "\n  %-17s %s" " SSH Usuari root permès:" "$value_info")"
+    text="$(printf "\n  %-17s %s" "SSH Usuari root permès:" "$value_info")"
 
     users_allowed="$(grep ^AllowUsers= /etc/ssh/sshd_config | sed 's/[^ ]* //')" # Borrar todo antes del espacio, para quedarse solo con la lista de usuarios
 
@@ -422,7 +422,7 @@ print_ssh_config() {
       users_allowed="$(printf "%s" "$users_allowed")"
     fi
 
-    text+="$(printf "\n  %-17s %s" " SSH Usuaris permesos:" "$users_allowed")"
+    text+="$(printf "\n  %-17s %s" "SSH Usuaris permesos:" "$users_allowed")"
 
     echo -e "$text"
 
@@ -452,7 +452,7 @@ print_ports_actius() {
     Sendq="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
     Local_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
     Peer_Address_Port="$(echo "$line" | awk '{print $5}' | sed 's/^ *//g')"
-    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+    Process="$(echo "$line" | grep -o 'users:.*' | sed 's/^ *//g')"
 
     if [ "$State" == "" ]; then
       State="-"
@@ -492,7 +492,7 @@ print_ports_actius() {
     Sendq="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
     Local_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
     Peer_Address_Port="$(echo "$line" | awk '{print $5}' | sed 's/^ *//g')"
-    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+    Process="$(echo "$line" | grep -o 'users:.*' | sed 's/^ *//g')"
 
     if [ "$State" == "" ]; then
       State="-"
@@ -529,7 +529,7 @@ print_ports_actius() {
     Sendq="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
     Local_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
     Peer_Address_Port="$(echo "$line" | awk '{print $5}' | sed 's/^ *//g')"
-    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+    Process="$(echo "$line" | grep -o 'users:.*' | sed 's/^ *//g')"
 
     text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
   done < <(echo "$text_tcp_established")
@@ -549,7 +549,7 @@ print_ports_actius() {
     Sendq="$(echo "$line" | awk '{print $2}' | sed 's/^ *//g')"
     Local_Address_Port="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
     Peer_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
-    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+    Process="$(echo "$line" | grep -o 'users:.*' | sed 's/^ *//g')"
 
     if [ "$Recvq" == "" ]; then
       Recvq="-"
