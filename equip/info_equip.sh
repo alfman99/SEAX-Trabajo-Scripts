@@ -1,4 +1,6 @@
 #!/bin/bash
+# Autors: Mario Konstanty Kochan Chmielik - 02402638N
+# Autors: Alfredo Manresa Martinez - 53874913N
 
 version_script="1.5.7"
 fecha_version="30/05/2022"

@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# Autors: Mario Konstanty Kochan Chmielik - 02402638N
+# Autors: Alfredo Manresa Martinez - 53874913N
 
 # Comprobamos si el ID del usuario no es igual a 0. Si no es igual a 0, le indicamos que debe ejecutar el script como root y salimos
 # del programa.
