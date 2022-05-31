@@ -2,7 +2,7 @@
 # Autors: Mario Konstanty Kochan Chmielik - 02402638N
 # Autors: Alfredo Manresa Martinez - 53874913N
 
-version_script="1.6.0"
+version_script="1.6.1"
 fecha_version="31/05/2022"
 nombre_fichero_output="log_equip.txt"
 
@@ -39,10 +39,17 @@ usage() {
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-c] [-m]
 
 El script de nivel de dispositivo analiza los usuarios, puertos, conexiones y tablas NF del sistema.
-Saca toda la información al archivo: log_equip.txt
+Saca toda la información al archivo: "$numero_fichero_output"
+
+Por defecto la script se ejecuta con un threshhold del 20% tanto para la memória como para la CPU.
+Esto significa que nos mostrará los usuarios que superen el 20% de memoria o CPU usada.
+
+En caso de no tener servidor SSH instalado en el equipo, simplemente se informa al usuario de esto. En
+caso de tener los valores como pueden ser el PermitRootLogin y los usuarios comentados en el archivo de 
+configuración, se notifica al usuario.
+
 
 Opcions disponibles:
-
 -h, --help      Imprime esta ayuda
 -v, --version   Imprime la versión y la fecha de la versión
 -c, --cpu       Nivell maxim de CPU a partir del qual volem que volem que ens avisin per usuari 
@@ -406,7 +413,7 @@ print_ssh_config() {
 
     if [ -z "$value_info" ]; then
       # No existe el valor, por lo que está por defecto el servidor 
-      value_info="Valor commentat"
+      value_info="Valor comentado"
     else
       value_info="$(echo "$value_info" | cut -d' ' -f2)"
     fi
@@ -417,7 +424,7 @@ print_ssh_config() {
 
     if [ -z "$users_allowed" ]; then
       # No existe el valor, por lo que está por defecto el servidor 
-      users_allowed="Valor commentat"
+      users_allowed="Valor comentado"
     else
       users_allowed="$(printf "%s" "$users_allowed")"
     fi
