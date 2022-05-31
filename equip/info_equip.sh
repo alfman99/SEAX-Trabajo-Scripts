@@ -2,8 +2,8 @@
 # Autors: Mario Konstanty Kochan Chmielik - 02402638N
 # Autors: Alfredo Manresa Martinez - 53874913N
 
-version_script="1.5.7"
-fecha_version="30/05/2022"
+version_script="1.6.0"
+fecha_version="31/05/2022"
 nombre_fichero_output="log_equip.txt"
 
 fecha_inicio=$(date '+%Y-%m-%d') # fecha inicio del analisis
@@ -89,7 +89,7 @@ parse_params() {
 
 # Comprueba que el sistema tenga todos los programas necesarios para funcionar
 comprobar_paquetes_necesarios() {
-  programas_necesarios=( "awk" "bc" "cat" "cut" "date" "echo" "getent" "grep" "head" "id" "lscpu" "nft" "printf" "ps" "sed" "sort" "ss" "sysctl" "top" "tr" "uniq" "wc" "who" "whoami" "xargs" )
+  programas_necesarios=( "awk" "bc" "cat" "cut" "date" "echo" "getent" "grep" "head" "id" "lscpu" "printf" "ps" "sed" "sort" "ss" "sysctl" "top" "tr" "uniq" "wc" "who" "whoami" "xargs" )
   programas_por_instalar=()
 
   for program in "${programas_necesarios[@]}"
@@ -167,6 +167,7 @@ print_usuarios_conexiones_activas() {
   lista_usuarios=""
 
   i=1
+  vacio=0
   while read -r usuario
   do
     # if i == 1 next iteration and increment i, sirve para que no se imprima el header de la tabla
@@ -191,6 +192,11 @@ print_usuarios_conexiones_activas() {
 
     lista_usuarios+=" $usuario"
 
+    if [ "$usuario" == "" ]
+    then
+      vacio=1
+    fi
+
     datos+="$(printf "\n          %-15s%-26s%-12s%-26s%-17s" "$usuario" "($local_addr" "<->" "$remote_addr" "$pid/$usuario@$terminal")"
 
   done < <(echo "$datos_socket")
@@ -199,6 +205,11 @@ print_usuarios_conexiones_activas() {
 
   text="$(printf "\n%-33s%s%s" "  Usuaris amb conexions actives:" "$(echo "$lista_usuarios" | xargs | tr ' ' '\n' | wc -l) -" "$lista_usuarios")"
   text+="$(printf "\n          %-15s%-26s%-12s%-26s%-17s" "Usuari" "(@IP:Port" "<->" "@IP:Port" "Procés:Usuari)")"
+
+  if [ "$vacio" -eq 0 ]; then
+    text+="$(printf "\n          %-15s%-26s%-12s%-26s%-17s" "-" "-" "-" "-" "-")"
+  fi
+
   text+="$datos"
 
   text=$(echo "$text" | uniq)  
@@ -311,7 +322,7 @@ print_uso_mas_cpu() {
     # Si el porcentaje de CPU calculado en el bucle anterior es mas grande que el parametro de entrada, añadir usuario a la lista para mostrarlo luego
 
     if [ "$total_porcentaje" -gt "$porcentaje" ]; then
-      text+="$(printf "\n          %-9s%-13s%-17s" "$usuario" "$total_porcentaje%" "noseque")"
+      text+="$(printf "\n          %-9s%-13s%-17s" "$usuario" "$total_porcentaje%" "-/-")"
       vacio=1
     fi
   done < <(echo "$users_active")
@@ -369,7 +380,7 @@ print_uso_mas_memoria() {
     # Si el porcentaje de CPU calculado en el bucle anterior es mas grande que el parametro de entrada, añadir usuario a la lista para mostrarlo luego
 
     if [ "$total_porcentaje" -gt "$porcentaje" ]; then
-      text+="$(printf "\n          %-9s%-13s%-17s" "$usuario" "$total_porcentaje%" "noseque")"
+      text+="$(printf "\n          %-9s%-13s%-17s" "$usuario" "$total_porcentaje%" "-/-")"
       vacio=1
     fi
 
@@ -436,12 +447,31 @@ print_ports_actius() {
       break
     fi
 
-    State="$(echo "$line" | awk '{print $1}')"
-    Recvq="$(echo "$line" | awk '{print $2}')"
-    Sendq="$(echo "$line" | awk '{print $3}')"
-    Local_Address_Port="$(echo "$line" | awk '{print $4}')"
-    Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
-    Process="$(echo "$line" | cut -d' ' -f16-)"
+    State="$(echo "$line" | awk '{print $1}' | sed 's/^ *//g')"
+    Recvq="$(echo "$line" | awk '{print $2}' | sed 's/^ *//g')"
+    Sendq="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
+    Local_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $5}' | sed 's/^ *//g')"
+    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+
+    if [ "$State" == "" ]; then
+      State="-"
+    fi
+    if [ "$Recvq" == "" ]; then
+      Recvq="-"
+    fi
+    if [ "$Sendq" == "" ]; then
+      Sendq="-"
+    fi
+    if [ "$Local_Address_Port" == "" ]; then
+      Local_Address_Port="-"
+    fi
+    if [ "$Peer_Address_Port" == "" ]; then
+      Peer_Address_Port="-"
+    fi
+    if [ "$Process" == "" ]; then
+      Process="-"
+    fi
 
     text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
   done < <(echo "$text_tcp_listen")
@@ -457,12 +487,28 @@ print_ports_actius() {
       break
     fi
 
-    State="$(echo "$line" | awk '{print $1}')"
-    Recvq="$(echo "$line" | awk '{print $2}')"
-    Sendq="$(echo "$line" | awk '{print $3}')"
-    Local_Address_Port="$(echo "$line" | awk '{print $4}')"
-    Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
-    Process="$(echo "$line" | cut -d' ' -f16-)"
+    State="$(echo "$line" | awk '{print $1}' | sed 's/^ *//g')"
+    Recvq="$(echo "$line" | awk '{print $2}' | sed 's/^ *//g')"
+    Sendq="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
+    Local_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $5}' | sed 's/^ *//g')"
+    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+
+    if [ "$State" == "" ]; then
+      State="-"
+    fi
+    if [ "$Recvq" == "" ]; then
+      Recvq="-"
+    fi
+    if [ "$Sendq" == "" ]; then
+      Sendq="-"
+    fi
+    if [ "$Peer_Address_Port" == "" ]; then
+      Peer_Address_Port="-"
+    fi
+    if [ "$Process" == "" ]; then
+      Process="-"
+    fi
 
     text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
   done < <(echo "$text_udp_listen")
@@ -478,12 +524,12 @@ print_ports_actius() {
       break
     fi
 
-    State="$(echo "$line" | awk '{print $1}')"
-    Recvq="$(echo "$line" | awk '{print $2}')"
-    Sendq="$(echo "$line" | awk '{print $3}')"
-    Local_Address_Port="$(echo "$line" | awk '{print $4}')"
-    Peer_Address_Port="$(echo "$line" | awk '{print $5}')"
-    Process="$(echo "$line" | cut -d' ' -f16-)"
+    State="$(echo "$line" | awk '{print $1}' | sed 's/^ *//g')"
+    Recvq="$(echo "$line" | awk '{print $2}' | sed 's/^ *//g')"
+    Sendq="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
+    Local_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $5}' | sed 's/^ *//g')"
+    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
 
     text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s %-20s" "$State" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
   done < <(echo "$text_tcp_established")
@@ -499,11 +545,27 @@ print_ports_actius() {
       break
     fi
 
-    Recvq="$(echo "$line" | awk '{print $1}')"
-    Sendq="$(echo "$line" | awk '{print $2}')"
-    Local_Address_Port="$(echo "$line" | awk '{print $3}')"
-    Peer_Address_Port="$(echo "$line" | awk '{print $4}')"
-    Process="$(echo "$line" | cut -d' ' -f15-)"
+    Recvq="$(echo "$line" | awk '{print $1}' | sed 's/^ *//g')"
+    Sendq="$(echo "$line" | awk '{print $2}' | sed 's/^ *//g')"
+    Local_Address_Port="$(echo "$line" | awk '{print $3}' | sed 's/^ *//g')"
+    Peer_Address_Port="$(echo "$line" | awk '{print $4}' | sed 's/^ *//g')"
+    Process="$(echo "$line" | cut -d' ' -f20- | sed 's/^ *//g')"
+
+    if [ "$Recvq" == "" ]; then
+      Recvq="-"
+    fi
+    if [ "$Sendq" == "" ]; then
+      Sendq="-"
+    fi
+    if [ "$Local_Address_Port" == "" ]; then
+      Local_Address_Port="-"
+    fi
+    if [ "$Peer_Address_Port" == "" ]; then
+      Peer_Address_Port="-"
+    fi
+    if [ "$Process" == "" ]; then
+      Process="-"
+    fi
 
     text+="$(printf "\n  %-20s %-20s %-20s %-20s %-20s" "$Recvq" "$Sendq" "$Local_Address_Port" "$Peer_Address_Port" "$Process")"
   done < <(echo "$text_udp_established")
